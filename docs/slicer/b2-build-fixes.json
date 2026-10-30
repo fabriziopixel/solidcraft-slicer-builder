@@ -1,0 +1,25 @@
+{
+  "revision": "926a7192574bcb9b3a732e1ec59a46d79cb45466",
+  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. Test objectives and assertions are unchanged.",
+  "sources": [
+    {
+      "path": "tests/libnest2d/libnest2d_tests_main.cpp",
+      "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/tests/libnest2d/libnest2d_tests_main.cpp",
+      "sha256": "326001c2b813af160e9e4e1474e3ea14c6f839f931b3c880b21bd0bd976ad32e"
+    },
+    {
+      "path": "src/libnest2d/include/libnest2d/placers/nfpplacer.hpp",
+      "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libnest2d/include/libnest2d/placers/nfpplacer.hpp",
+      "sha256": "62148557ac4a3dae0eb5db29821e771c2d8b3023082e89f16de8785eba0a55d8"
+    }
+  ],
+  "patches": [
+    {
+      "path": "slicer/engine/patches/0004-libnest2d-test-callback.patch",
+      "sha256": "41802480395fd6a07a31dab055ef77fe8da3ea807c9d2ef88f2e6cb12fec2eaa"
+    }
+  ],
+  "compiled": false,
+  "tests_passed": false,
+  "printer_ready": false
+}

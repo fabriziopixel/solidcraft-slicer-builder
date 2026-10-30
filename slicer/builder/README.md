@@ -10,6 +10,10 @@ Use a dedicated, disposable **Linux x86_64 VM**, recommended 16+ GiB RAM and 60+
 
 The VM must already have the development packages required by the pinned upstream `linux.d/debian`, plus Python 3, Git, CMake, CTest, Ninja, a C++ compiler and pkg-config. Review the upstream prerequisite list and install it **on that disposable VM only**. The driver never runs apt, sudo, cloud APIs or package installation. Distribution/package compatibility is untested; do not claim the recipe is an end-to-end verified build. Capture the VM/base image digest and repository snapshots before attempting a reproducible build. Recording installed package versions alone is not dependency freezing.
 
+## Reviewed retry after the first CI failure
+
+Run `41064607414` failed during compilation of `tests/libnest2d/libnest2d_tests_main.cpp`, before CTest. Two test callbacks still use a one-argument signature, while the pinned `NfpPConfig::object_function` requires both item and packed items. Candidate patch `0004-libnest2d-test-callback.patch` adds the unused second parameter only; objectives, assertions, production nesting code and the full test selection are unchanged. `docs/slicer/b2-build-fixes.json` pins both reviewed sources and the patch hash. The driver verifies them before applying the patch to either variant. Local patch applicability and Python tests are not a successful C++ build. A new manual run is required; no automatic retry loop is configured.
+
 ## Fetch public upstream sources on the builder
 
 ```sh

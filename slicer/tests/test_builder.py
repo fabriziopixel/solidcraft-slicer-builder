@@ -97,6 +97,33 @@ class BuilderTests(unittest.TestCase):
         self.assertFalse(report["tests_passed"])
         self.assertFalse(report["printer_ready"])
 
+    def test_build_fix_source_hashes_and_revision_required(self):
+        docs = self.root / "docs/slicer"
+        docs.mkdir(parents=True)
+        source = self.source / "test.cpp"
+        source.write_bytes(b"reviewed source")
+        manifest = {"revision": driver.REVISION, "sources": [
+            {"path": "test.cpp", "sha256": hashlib.sha256(source.read_bytes()).hexdigest()}],
+            "patches": [{"path": "reviewed.patch", "sha256": "synthetic"}]}
+        path = docs / "b2-build-fixes.json"
+        path.write_text(json.dumps(manifest))
+        with patch.object(driver, "ROOT", self.root):
+            self.assertEqual(driver.build_fixes(self.source), manifest["patches"])
+            source.write_bytes(b"changed")
+            with self.assertRaisesRegex(ValueError, "source mismatch"):
+                driver.build_fixes(self.source)
+            manifest["revision"] = "wrong"
+            path.write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError, "revision mismatch"):
+                driver.build_fixes(self.source)
+
+    def test_shipped_build_fix_patch_hashes(self):
+        manifest = json.loads((driver.ROOT / "docs/slicer/b2-build-fixes.json").read_text())
+        for entry in manifest["patches"]:
+            self.assertIn(entry["path"], package.FILES)
+            self.assertEqual(hashlib.sha256((driver.ROOT / entry["path"]).read_bytes()).hexdigest(),
+                             entry["sha256"])
+
     def test_wrong_revision_stops_before_cmake(self):
         def command(argv, **kwargs):
             return subprocess.CompletedProcess(argv, 0, stdout=b"wrong-revision\n")

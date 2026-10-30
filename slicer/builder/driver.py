@@ -60,6 +60,17 @@ def plan(source, jobs=1):
     ]
 
 
+def build_fixes(checkout):
+    """Verify the reviewed test API compatibility fix before applying any patch."""
+    fixes = json.loads((ROOT / "docs/slicer/b2-build-fixes.json").read_text())
+    if fixes["revision"] != REVISION:
+        raise ValueError("build fix revision mismatch")
+    for entry in fixes["sources"]:
+        if hashlib.sha256((checkout / entry["path"]).read_bytes()).hexdigest() != entry["sha256"]:
+            raise ValueError("build fix source mismatch: " + entry["path"])
+    return fixes["patches"]
+
+
 def save(path, value):
     temp = path.with_suffix(".tmp")
     temp.write_text(json.dumps(value, indent=2) + "\n")
@@ -119,6 +130,7 @@ def build(source, output, confirmed, render_experiment=False, jobs=1):
                 if hashlib.sha256((checkout / entry["path"]).read_bytes()).hexdigest() != entry["sha256"]:
                     raise ValueError("render source mismatch: " + entry["path"])
             expected.append(experiment["patch"])
+        expected.extend(build_fixes(checkout))
         report["patches"] = expected
         for entry in expected:
             patch = ROOT / entry["path"]

@@ -9,6 +9,8 @@ Open **Actions → B2 candidate build (diagnostic only) → Run workflow**.
 - `x11`: two metadata fixes plus the optional X11/GLX rendering experiment.
 - `metadata`: the two metadata fixes, retaining the upstream renderer.
 
+Both variants also apply a reviewed test-only callback compatibility patch after run `41064607414` failed compiling two stale libnest2d test lambdas. The patch adds the required second argument without removing assertions or excluding tests. Source and patch hashes are pinned in `docs/slicer/b2-build-fixes.json`; a new build is still required to validate it.
+
 Only standard `ubuntu-24.04` GitHub-hosted runners are used; no paid/larger or self-hosted runner and no VPS access. GitHub account policy/quotas can still block a job. Runs are manual, serialized and limited to 350 minutes. The runner must have at least 12 GiB available RAM and 40 GiB free disk after removal of fixed unused SDK directories on that disposable runner. No resource gate is bypassed. Prerequisites are installed on the runner, never on the CAD VPS.
 
 The workflow checks out Bambu Studio revision `926a7192574bcb9b3a732e1ec59a46d79cb45466`, verifies reviewed source/patch hashes, builds dependencies and the candidate, and requires nonempty CTest results. Compiler parallelism is capped at two; the top-level dependency superbuild remains serial. OS repositories and all transitive downloads are **not yet frozen**, so this is experimental, not a reproducible or audited release recipe.

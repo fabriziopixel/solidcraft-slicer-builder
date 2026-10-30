@@ -18,6 +18,8 @@ FILES = (
     "slicer/tests/test_builder.py",
     "slicer/engine/patches/0001-first-layer-statistics.patch",
     "slicer/engine/patches/0002-filament-volume-units.patch",
+    "slicer/engine/patches/0004-libnest2d-test-callback.patch",
+    "docs/slicer/b2-build-fixes.json",
     "slicer/engine/experiments/0003-x11-glx-rendering.patch",
     "slicer/engine/LICENSE.BambuStudio.txt",
     "slicer/engine/NOTICE.md",
