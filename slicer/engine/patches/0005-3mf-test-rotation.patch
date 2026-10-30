@@ -1,0 +1,11 @@
+diff --git a/tests/libslic3r/test_3mf.cpp b/tests/libslic3r/test_3mf.cpp
+--- a/tests/libslic3r/test_3mf.cpp
++++ b/tests/libslic3r/test_3mf.cpp
+@@ -96,4 +96,6 @@
+             ModelInstance* instance = object->instances.front();
+-            instance->set_rotation(X, -M_PI / 4.0);
++            Vec3d rotation = instance->get_rotation();
++            rotation(X) = -M_PI / 4.0;
++            instance->set_rotation(rotation);
+             instance->set_offset(Vec3d::Zero());
+             instance->set_scaling_factor({ 2.0, 2.0, 2.0 });

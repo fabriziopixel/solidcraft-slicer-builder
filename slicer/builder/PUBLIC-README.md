@@ -9,7 +9,7 @@ Open **Actions → B2 candidate build (diagnostic only) → Run workflow**.
 - `x11`: two metadata fixes plus the optional X11/GLX rendering experiment.
 - `metadata`: the two metadata fixes, retaining the upstream renderer.
 
-Both variants also apply a reviewed test-only callback compatibility patch after run `41064607414` failed compiling two stale libnest2d test lambdas. The patch adds the required second argument without removing assertions or excluding tests. Source and patch hashes are pinned in `docs/slicer/b2-build-fixes.json`; a new build is still required to validate it.
+Both variants also apply a reviewed test-only callback compatibility patch after run `41064607414` failed compiling two stale libnest2d test lambdas. The patch adds the required second argument without removing assertions or excluding tests. Run `41106982877` then failed on a stale axis-angle rotation setter in a 3MF test. A second test-only patch adapts it to the vector setter, preserving the other rotation axes and all expected results/tolerances. Source and patch hashes for both fixes are pinned in `docs/slicer/b2-build-fixes.json`; a new build is still required to validate them.
 
 Only standard `ubuntu-24.04` GitHub-hosted runners are used; no paid/larger or self-hosted runner and no VPS access. GitHub account policy/quotas can still block a job. Runs are manual, serialized and limited to 350 minutes. The runner must have at least 12 GiB available RAM and 40 GiB free disk after removal of fixed unused SDK directories on that disposable runner. No resource gate is bypassed. Prerequisites are installed on the runner, never on the CAD VPS.
 

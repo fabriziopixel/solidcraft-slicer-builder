@@ -1,7 +1,17 @@
 {
   "revision": "926a7192574bcb9b3a732e1ec59a46d79cb45466",
-  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. Test objectives and assertions are unchanged.",
+  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. Test objectives and assertions are unchanged.",
   "sources": [
+    {
+      "path": "tests/libslic3r/test_3mf.cpp",
+      "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/tests/libslic3r/test_3mf.cpp",
+      "sha256": "ef887de02bdaaecc763e7605c14ef354cc1e3040b91c02e584ab51d42dba9d6d"
+    },
+    {
+      "path": "src/libslic3r/Model.hpp",
+      "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libslic3r/Model.hpp",
+      "sha256": "3733369695ac3ff71673ed284a2c814add71e0eef07f226bf71e50a8f05eaffb"
+    },
     {
       "path": "tests/libnest2d/libnest2d_tests_main.cpp",
       "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/tests/libnest2d/libnest2d_tests_main.cpp",
@@ -14,6 +24,10 @@
     }
   ],
   "patches": [
+    {
+      "path": "slicer/engine/patches/0005-3mf-test-rotation.patch",
+      "sha256": "bf2b5bd8292295064a55ecc213f297a4f45e6945140d0d5dbe230b5bba3e712d"
+    },
     {
       "path": "slicer/engine/patches/0004-libnest2d-test-callback.patch",
       "sha256": "41802480395fd6a07a31dab055ef77fe8da3ea807c9d2ef88f2e6cb12fec2eaa"

@@ -14,6 +14,8 @@ The VM must already have the development packages required by the pinned upstrea
 
 Run `41064607414` failed during compilation of `tests/libnest2d/libnest2d_tests_main.cpp`, before CTest. Two test callbacks still use a one-argument signature, while the pinned `NfpPConfig::object_function` requires both item and packed items. Candidate patch `0004-libnest2d-test-callback.patch` adds the unused second parameter only; objectives, assertions, production nesting code and the full test selection are unchanged. `docs/slicer/b2-build-fixes.json` pins both reviewed sources and the patch hash. The driver verifies them before applying the patch to either variant. Local patch applicability and Python tests are not a successful C++ build. A new manual run is required; no automatic retry loop is configured.
 
+Run `41106982877` advanced past those callbacks but failed compiling `tests/libslic3r/test_3mf.cpp:97`: the axis-angle `ModelInstance::set_rotation` overload is no longer available. Test-only patch `0005-3mf-test-rotation.patch` reads the current rotation vector, changes its X component to the same angle and calls the vector setter. Other axes, expected geometry, tolerances and assertions are preserved. The test and `Model.hpp` hashes are also pinned in the build-fix manifest. No runtime code or test selection is changed; compilation/CTest still requires another manual attempt.
+
 ## Fetch public upstream sources on the builder
 
 ```sh

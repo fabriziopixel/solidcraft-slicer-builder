@@ -2,8 +2,8 @@
   "compiled": false,
   "files": {
     "docs/slicer/b2-build-fixes.json": {
-      "bytes": 1169,
-      "sha256": "7e154e9b375976495a4d3394ba8f66f5efdd99c17b86aff1217544a0dbbb8993"
+      "bytes": 2050,
+      "sha256": "065405c10700c88939ebcc3427322e3985ed46f58bd93147493c4e7ed14d5618"
     },
     "docs/slicer/b2-build-source-index.json": {
       "bytes": 1834,
@@ -22,12 +22,12 @@
       "sha256": "c075ce1d9611d2e1b0c17c83ac4f1576c124b73c9186e23dd6d7c58405fc1a66"
     },
     "slicer/builder/PUBLIC-README.md": {
-      "bytes": 3790,
-      "sha256": "0fd41830465afde320ba4e8f6ff6e64ec8243425925a68fc199316e013152a8d"
+      "bytes": 4019,
+      "sha256": "b212cef66272dc1b500fcac6368aea81cd90fe3771d0ed4844e37da605f9661a"
     },
     "slicer/builder/README.md": {
-      "bytes": 8852,
-      "sha256": "47511e5a31c60cc3d6dd214c517cd4bdcfb9d03a5f12da687ea19e2e946c22e2"
+      "bytes": 9438,
+      "sha256": "44ebe2318ed6a3a2210124d3b0bcc042cf8d290f1a5219a7866f74866f525219"
     },
     "slicer/builder/build-candidate.workflow.yml": {
       "bytes": 5430,
@@ -38,8 +38,8 @@
       "sha256": "df1cf0a9a0f77087269349e46e6469827b6854f753b1fc60fef0a01e46d8405a"
     },
     "slicer/builder/package.py": {
-      "bytes": 2670,
-      "sha256": "7a3c30ab8e21114b5a60ed473cb393a4ed1f90245d799ee1be564ebbf59052a5"
+      "bytes": 2728,
+      "sha256": "d13bf0d6097768485e0b33d79f96f29fa3339273b4b457cca8a31730bf4c5b71"
     },
     "slicer/engine/LICENSE.BambuStudio.txt": {
       "bytes": 34520,
@@ -64,6 +64,10 @@
     "slicer/engine/patches/0004-libnest2d-test-callback.patch": {
       "bytes": 837,
       "sha256": "41802480395fd6a07a31dab055ef77fe8da3ea807c9d2ef88f2e6cb12fec2eaa"
+    },
+    "slicer/engine/patches/0005-3mf-test-rotation.patch": {
+      "bytes": 535,
+      "sha256": "bf2b5bd8292295064a55ecc213f297a4f45e6945140d0d5dbe230b5bba3e712d"
     },
     "slicer/tests/test_builder.py": {
       "bytes": 8562,
