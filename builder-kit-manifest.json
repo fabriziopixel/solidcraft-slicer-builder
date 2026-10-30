@@ -26,8 +26,8 @@
       "sha256": "2cdaf158719efbd6898199952d0f7573f3a30fcad0066f9e435c30ce639a8ea6"
     },
     "slicer/builder/build-candidate.workflow.yml": {
-      "bytes": 5342,
-      "sha256": "4277c4a292b9ebf4dbc707f61435cec0c68c3e91870317a36b900e126344d96c"
+      "bytes": 5430,
+      "sha256": "83dbf2a8a25f0c15ce960bc8736ae372a3d4533ba0b113897ed496200ec8ad8d"
     },
     "slicer/builder/driver.py": {
       "bytes": 9178,

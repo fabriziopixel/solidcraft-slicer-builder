@@ -21,9 +21,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 350
     env:
-      CI_SOURCE: ${{ runner.temp }}/solidcraft-b2/upstream
-      CI_OUTPUT: ${{ runner.temp }}/solidcraft-b2/candidate
-      CI_ROOT: ${{ runner.temp }}/solidcraft-b2
       VARIANT: ${{ inputs.variant }}
     steps:
       - name: Checkout the public source-only kit (no persisted credentials)
@@ -42,6 +39,10 @@ jobs:
           test ! -e /opt/solidcraft
           test "$RUNNER_OS" = Linux
           test "$RUNNER_ARCH" = X64
+          export CI_ROOT="$RUNNER_TEMP/solidcraft-b2"
+          export CI_SOURCE="$CI_ROOT/upstream"
+          export CI_OUTPUT="$CI_ROOT/candidate"
+          printf '%s\n' "CI_ROOT=$CI_ROOT" "CI_SOURCE=$CI_SOURCE" "CI_OUTPUT=$CI_OUTPUT" >> "$GITHUB_ENV"
           mkdir -p "$CI_ROOT"
           { uname -a; free -h; df -h; } | tee "$CI_ROOT/host-before.txt"
           # Fixed SDK directories on this disposable hosted runner ONLY, never on the VPS.
