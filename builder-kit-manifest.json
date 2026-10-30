@@ -22,8 +22,8 @@
       "sha256": "3990bc1365ef3234b819be5c81b8c748d5854a9763f492efa38089b9072ff5a8"
     },
     "slicer/builder/README.md": {
-      "bytes": 8086,
-      "sha256": "2cdaf158719efbd6898199952d0f7573f3a30fcad0066f9e435c30ce639a8ea6"
+      "bytes": 8083,
+      "sha256": "e27d2c248ed3f784513301deaa34f517d5c9365de3f6624033768512fc1d1877"
     },
     "slicer/builder/build-candidate.workflow.yml": {
       "bytes": 5430,
