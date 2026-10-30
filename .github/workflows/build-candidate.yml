@@ -1,0 +1,128 @@
+name: B2 candidate build (diagnostic only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: Candidate source variant (never deployed)
+        type: choice
+        options: [x11, metadata]
+        default: x11
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solidcraft-b2-builder
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    env:
+      CI_SOURCE: ${{ runner.temp }}/solidcraft-b2/upstream
+      CI_OUTPUT: ${{ runner.temp }}/solidcraft-b2/candidate
+      CI_ROOT: ${{ runner.temp }}/solidcraft-b2
+      VARIANT: ${{ inputs.variant }}
+    steps:
+      - name: Checkout the public source-only kit (no persisted credentials)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Guard and prepare disposable GitHub-hosted runner
+        env:
+          HOST_ENVIRONMENT: ${{ runner.environment }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_ACTIONS" = true
+          test "$HOST_ENVIRONMENT" = github-hosted
+          test ! -e /opt/solidcraft
+          test "$RUNNER_OS" = Linux
+          test "$RUNNER_ARCH" = X64
+          mkdir -p "$CI_ROOT"
+          { uname -a; free -h; df -h; } | tee "$CI_ROOT/host-before.txt"
+          # Fixed SDK directories on this disposable hosted runner ONLY, never on the VPS.
+          sudo rm -rf -- /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          { free -h; df -h; } | tee "$CI_ROOT/host-after-cleanup.txt"
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          from slicer.builder.driver import resources, MIN_RAM, MIN_DISK
+          ram, disk = resources(Path(os.environ['CI_ROOT']))
+          print(f'Available RAM {ram/1024**3:.2f} GiB, disk {disk/1024**3:.2f} GiB')
+          if ram < MIN_RAM or disk < MIN_DISK:
+              raise SystemExit('Insufficient free hosted-runner resources: no build attempted')
+          PY
+
+      - name: Test source-only kit
+        run: python3 -m unittest discover -s slicer/tests -p test_builder.py -v
+
+      - name: Fetch the exact public Bambu source revision
+        shell: bash
+        run: |
+          set -euo pipefail
+          git init "$CI_SOURCE"
+          git -C "$CI_SOURCE" fetch --depth 1 https://github.com/bambulab/BambuStudio.git 926a7192574bcb9b3a732e1ec59a46d79cb45466
+          git -C "$CI_SOURCE" checkout --detach FETCH_HEAD
+          test "$(git -C "$CI_SOURCE" rev-parse HEAD)" = 926a7192574bcb9b3a732e1ec59a46d79cb45466
+
+      - name: Install Linux build prerequisites on the hosted runner only
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            autoconf build-essential ninja-build cmake extra-cmake-modules file gettext git wget \
+            libgstreamerd-3-dev libsecret-1-dev libosmesa6-dev libssl-dev eglexternalplatform-dev \
+            libcurl4-openssl-dev libdbus-1-dev libglew-dev libudev-dev libmspack-dev libgl1-mesa-dev \
+            libgtk-3-dev libxkbcommon-dev libtool libunwind-dev libfuse2 texinfo nasm yasm libx264-dev \
+            libbz2-dev libwebkit2gtk-4.1-dev pkg-config libxrandr-dev libxinerama-dev libxcursor-dev \
+            libxi-dev libwayland-dev wayland-protocols libegl1-mesa-dev xvfb mesa-utils
+
+      - name: Compile candidate and run CTest (no release or printer connection)
+        shell: bash
+        run: |
+          set -euo pipefail
+          extra=()
+          case "$VARIANT" in
+            x11) extra+=(--render-experiment) ;;
+            metadata) ;;
+            *) echo 'Unknown variant'; exit 1 ;;
+          esac
+          python3 -m slicer.builder.driver --source "$CI_SOURCE" --output "$CI_OUTPUT" \
+            --confirm-isolated-builder --jobs 2 "${extra[@]}"
+
+      - name: Upload diagnostic reports only (NO executables)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: b2-diagnostics-${{ inputs.variant }}-${{ github.run_id }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            ${{ env.CI_ROOT }}/host-before.txt
+            ${{ env.CI_ROOT }}/host-after-cleanup.txt
+            ${{ env.CI_OUTPUT }}/build-report.json
+            ${{ env.CI_OUTPUT }}/build.log
+            ${{ env.CI_OUTPUT }}/candidate.diff
+            ${{ env.CI_OUTPUT }}/toolchain.txt
+            ${{ env.CI_OUTPUT }}/os-packages.tsv
+            ${{ env.CI_OUTPUT }}/build/CMakeCache.txt
+            ${{ env.CI_OUTPUT }}/deps-build/CMakeCache.txt
+            ${{ env.CI_OUTPUT }}/build/Testing/Temporary/*.log
+
+      - name: Record gate status
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          report = Path(os.environ['CI_OUTPUT']) / 'build-report.json'
+          state = json.loads(report.read_text())['state'] if report.is_file() else 'build_not_started'
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(f'## B2: {state}\n\nDiagnostic candidate only. No release, no deployment, no printer-ready output.\n')
+          PY

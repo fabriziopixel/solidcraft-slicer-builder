@@ -1,0 +1,37 @@
+[
+  {
+    "path": "deps/CMakeLists.txt",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/deps/CMakeLists.txt",
+    "sha256": "2ee68677f6c42488aa243bc375ad77cb00c005bfd63c22b27fb6bdd9577b339d"
+  },
+  {
+    "path": "linux.d/debian",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/linux.d/debian",
+    "sha256": "fe9d8aeec32f27d0d95c19bff5dc93adf9c4a5114755edd43ea6c05867c3d0d3"
+  },
+  {
+    "path": "deps/GLEW/GLEW.cmake",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/deps/GLEW/GLEW.cmake",
+    "sha256": "a39c84b1b9766d1fa1c6ee207ab9c195df6066726b2ca2e7f8bb5508818c1bc5"
+  },
+  {
+    "path": "deps/GLFW/GLFW.cmake",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/deps/GLFW/GLFW.cmake",
+    "sha256": "61327c3f7ea34a937dd84dc5cd23f674635323a929489908b36b6b367c842cbb"
+  },
+  {
+    "path": ".github/workflows/build_bambu.yml",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/.github/workflows/build_bambu.yml",
+    "sha256": "3fb802e68e1148d6bdba9e86dd546f3b5e40d673e45844fba94754a66836d861"
+  },
+  {
+    "path": "deps/deps-linux.cmake",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/deps/deps-linux.cmake",
+    "sha256": "0d2d02a37b9615126ceaf07d89736b63b21bf40955c62d6ff898cd439589fd5e"
+  },
+  {
+    "path": "deps/GLEW/glew/CMakeLists.txt",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/deps/GLEW/glew/CMakeLists.txt",
+    "sha256": "e887e5ee163fc2eaf1264e36280ec651951c9a0babeca6cdd6065a88d54b0013"
+  }
+]

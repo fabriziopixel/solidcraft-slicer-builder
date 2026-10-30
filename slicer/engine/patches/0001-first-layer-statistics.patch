@@ -1,0 +1,32 @@
+--- a/src/libslic3r/GCode/ThumbnailData.hpp
++++ b/src/libslic3r/GCode/ThumbnailData.hpp
+@@ -80,7 +80,7 @@
+     int first_extruder = 0;
+     float nozzle_diameter = 0.4;
+     std::string bed_type;
+-    float first_layer_time;
++    float first_layer_time = 0.0f;
+     // version 1: use view type ColorPrint (filament color)
+     // version 2: use view type FilamentId (filament id)
+     int version = 2;
+--- a/src/slic3r/GUI/PartPlate.cpp
++++ b/src/slic3r/GUI/PartPlate.cpp
+@@ -7188,7 +7188,7 @@
+                     plate_data_item->nozzle_change_sequence = m_plate_list[i]->m_gcode_result->nozzle_change_sequence;
+                     plate_data_item->optimal_assignment = m_plate_list[i]->m_gcode_result->optimal_assignment;
+                     plate_data_item->pause_printing = m_plate_list[i]->m_gcode_result->pause_printing;
+-                    plate_data_item->first_layer_time = std::to_string(m_plate_list[i]->cali_bboxes_data.first_layer_time);
++                    plate_data_item->first_layer_time = std::to_string(m_plate_list[i]->get_slice_result()->initial_layer_time);
+ 					Print *print                      = nullptr;
+ 					m_plate_list[i]->get_print((PrintBase **) &print, nullptr, nullptr);
+ 					if (print) {
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -8014,6 +8014,7 @@
+             calibration_thumbnails.push_back(calibration_data);*/
+ 
+             PlateBBoxData* plate_bbox = new PlateBBoxData();
++            plate_bbox->first_layer_time = gcode_result->initial_layer_time;
+             std::vector<BBoxData>& id_bboxes = plate_bbox->bbox_objs;
+             BoundingBoxf bbox_all;
+             PrintSequence curr_plate_seq = part_plate->get_print_seq();

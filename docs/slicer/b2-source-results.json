@@ -1,0 +1,56 @@
+{
+  "scope": "Hash-pinned source inspection and patch application ONLY; no compilation/runtime validation.",
+  "source_files_verified": 13,
+  "source_anchors": [
+    {
+      "path": "src/libslic3r/GCode/ThumbnailData.hpp",
+      "line": 83,
+      "anchor": "    float first_layer_time;"
+    },
+    {
+      "path": "src/slic3r/GUI/PartPlate.cpp",
+      "line": 7191,
+      "anchor": "std::to_string(m_plate_list[i]->cali_bboxes_data.first_layer_time)"
+    },
+    {
+      "path": "src/slic3r/GUI/Plater.cpp",
+      "line": 16157,
+      "anchor": "bboxdata.first_layer_time = partplate_list.get_curr_plate()->get_slice_result()->initial_layer_time;"
+    },
+    {
+      "path": "src/libslic3r/GCode/GCodeProcessor.cpp",
+      "line": 2749,
+      "anchor": "m_result.initial_layer_time     = layer_times.size() > 0 ? std::max(float(0.0), layer_times[0] - prepare_time) : 0;"
+    },
+    {
+      "path": "src/libslic3r/GCode/GCodeProcessor.cpp",
+      "line": 745,
+      "anchor": "total_volume_per_extruder[filament_id] += volume;"
+    },
+    {
+      "path": "src/libslic3r/GCode/GCodeProcessor.cpp",
+      "line": 747,
+      "anchor": "format_filament_used_info(\"total filament volume [cm^3]\", total_volume_per_extruder)"
+    },
+    {
+      "path": "src/BambuStudio.cpp",
+      "line": 8015,
+      "anchor": "PlateBBoxData* plate_bbox = new PlateBBoxData();"
+    }
+  ],
+  "patches": [
+    {
+      "path": "slicer/engine/patches/0001-first-layer-statistics.patch",
+      "sha256": "a902869efe8d388ebfc1012414a9702e0e9fae54ecdfb6775a6b300427b00030"
+    },
+    {
+      "path": "slicer/engine/patches/0002-filament-volume-units.patch",
+      "sha256": "c12b86097558f7c809275113e094396f0c214c8eb568853f95d9596e9101989d"
+    }
+  ],
+  "patch_application_passed": true,
+  "compiled": false,
+  "patched_engine_tested": false,
+  "milestone_b_complete": false,
+  "printer_ready": false
+}

@@ -1,0 +1,11 @@
+--- a/src/libslic3r/GCode/GCodeProcessor.cpp
++++ b/src/libslic3r/GCode/GCodeProcessor.cpp
+@@ -742,7 +742,7 @@
+                     auto iter = std::find_if(context.filament_lists.begin(), context.filament_lists.end(), [filament_id](const Extruder& filament) { return filament.id() == filament_id; });
+                     if (iter == context.filament_lists.end())
+                         continue;
+-                    total_volume_per_extruder[filament_id] += volume;
++                    total_volume_per_extruder[filament_id] += volume * 0.001; // mm^3 to cm^3 for the header.
+                 }
+                 ret += format_filament_used_info("total filament volume [cm^3]", total_volume_per_extruder);
+             }

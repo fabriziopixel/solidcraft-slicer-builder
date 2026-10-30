@@ -1,0 +1,17 @@
+{
+  "patch": {
+    "path": "slicer/engine/experiments/0003-x11-glx-rendering.patch",
+    "sha256": "cd276540ac35bbf386b341d8b9b1b79707161e221f97a77acf1d22d1b166f022"
+  },
+  "additional_sources": [
+    {
+      "path": "deps/GLFW/GLFW.cmake",
+      "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/deps/GLFW/GLFW.cmake",
+      "sha256": "61327c3f7ea34a937dd84dc5cd23f674635323a929489908b36b6b367c842cbb"
+    }
+  ],
+  "patch_applies_after_metadata_patches": true,
+  "compiled": false,
+  "rendering_tested": false,
+  "printer_ready": false
+}

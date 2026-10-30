@@ -1,0 +1,35 @@
+--- a/deps/GLFW/GLFW.cmake
++++ b/deps/GLFW/GLFW.cmake
+@@ -7,7 +7,7 @@
+ endif()
+ 
+ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+-	set(_glfw_use_wayland "-DGLFW_USE_WAYLAND=ON")
++	set(_glfw_use_wayland "-DGLFW_USE_WAYLAND=OFF")
+ else()
+ 	set(_glfw_use_wayland "-DGLFW_USE_WAYLAND=OFF")
+ endif()
+--- a/src/BambuStudio.cpp
++++ b/src/BambuStudio.cpp
+@@ -6236,8 +6236,9 @@
+         }
+         else {
+             BOOST_LOG_TRIVIAL(info) << "glfwInit Success."<< std::endl;
+-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, gl_major);
+-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, gl_minor);
++            // OpenGL version, not the GLFW library version returned above.
++            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
++            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+             glfwWindowHint(GLFW_RED_BITS, 8);
+             glfwWindowHint(GLFW_GREEN_BITS, 8);
+             glfwWindowHint(GLFW_BLUE_BITS, 8);
+@@ -6254,7 +6255,8 @@
+ #endif
+ 
+ #ifdef __linux__
+-            glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_OSMESA_CONTEXT_API);
++            // Experimental X11/GLX path; requires an actual X server (e.g. Xvfb).
++            glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_NATIVE_CONTEXT_API);
+ #endif
+ 
+             GLFWwindow* window = glfwCreateWindow(640, 480, "base_window", NULL, NULL);

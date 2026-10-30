@@ -1,0 +1,67 @@
+[
+  {
+    "path": "src/slic3r/GUI/OpenGLManager.cpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/OpenGLManager.cpp",
+    "sha256": "5e3d6459809f82345ad736c3cf1b9a83f404129bd5a10dc0eb3608bd68789278"
+  },
+  {
+    "path": "src/slic3r/GUI/OpenGLManager.hpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/OpenGLManager.hpp",
+    "sha256": "64612f7105d7278ff4c810d3b9fad16bd53b5b064d8029a22f86cfdd08e5b8e9"
+  },
+  {
+    "path": "src/slic3r/GUI/PartPlate.cpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/PartPlate.cpp",
+    "sha256": "49eafcf200b8f7d3ee1b9ece2ee31e6cf1943831ead1d70a024924c268076fcf"
+  },
+  {
+    "path": "src/slic3r/GUI/PartPlate.hpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/PartPlate.hpp",
+    "sha256": "db5649e35aa62afab0ea85147b94cd0dc3f8f304ac1a705db741299166910f08"
+  },
+  {
+    "path": "src/slic3r/GUI/Plater.cpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/Plater.cpp",
+    "sha256": "521679fa86a6407f016bcd69c3ec4f4d1f2c7124714aceeb43e7d59709ecadd2"
+  },
+  {
+    "path": "src/slic3r/GUI/GLCanvas3D.hpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/GLCanvas3D.hpp",
+    "sha256": "1adeed3a669c2f2d035eef6f97f998aa85cab48ca83750bf42e293b30c3b1231"
+  },
+  {
+    "path": "src/slic3r/GUI/GLCanvas3D.cpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/slic3r/GUI/GLCanvas3D.cpp",
+    "sha256": "103ec545189793be3afdaa39c35750c8357a1261def7c97b243e7fc6a887e0a6"
+  },
+  {
+    "path": "src/libslic3r/Print.hpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libslic3r/Print.hpp",
+    "sha256": "a2a4223ca5151465f669447d25d7947238aa75556278443d14478cc9c70b6b5c"
+  },
+  {
+    "path": "src/libslic3r/ProjectTask.hpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libslic3r/ProjectTask.hpp",
+    "sha256": "bc37b828630c111e76b0e7bc22f2a6944c0d918c81e8084553fa6c965a638b2a"
+  },
+  {
+    "path": "src/libslic3r/GCode/ThumbnailData.hpp",
+    "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libslic3r/GCode/ThumbnailData.hpp",
+    "sha256": "d102a00fdfd436b66c47724e50290a3aa5f4a42c8a1dedd9c83c53228712bf37"
+  },
+  {
+    "path": "src/BambuStudio.cpp",
+    "url": "https://github.com/bambulab/BambuStudio/blob/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/BambuStudio.cpp",
+    "sha256": "f59b0258556b6a1cb0532317dfcdd6ba619f1b90ad84e2a73196c3e595f9e93c"
+  },
+  {
+    "path": "src/libslic3r/GCode/GCodeProcessor.cpp",
+    "url": "https://github.com/bambulab/BambuStudio/blob/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libslic3r/GCode/GCodeProcessor.cpp",
+    "sha256": "9c7a9fbaff71738324fbfb4bc3c5ef9e322688d8465b8fc5c630317393a4bf29"
+  },
+  {
+    "path": "src/libslic3r/GCode/GCodeProcessor.hpp",
+    "url": "https://github.com/bambulab/BambuStudio/blob/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libslic3r/GCode/GCodeProcessor.hpp",
+    "sha256": "00e19b3b6b18e2a6958ab1ec4b45001f8ad6659c2bedb4a3bdb0328783132e05"
+  }
+]

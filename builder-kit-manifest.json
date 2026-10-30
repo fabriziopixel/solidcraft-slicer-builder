@@ -1,0 +1,68 @@
+{
+  "compiled": false,
+  "files": {
+    "docs/slicer/b2-build-source-index.json": {
+      "bytes": 1834,
+      "sha256": "8127dc5a746d1b3b5710e34004e3998677e1c7f78e2f0e75e5ee4e74ffd798b3"
+    },
+    "docs/slicer/b2-render-experiment.json": {
+      "bytes": 593,
+      "sha256": "be1fb0f7c47bb8e96eb26e3b8361635d4502f392333616a7437d5e7728a5f010"
+    },
+    "docs/slicer/b2-source-index.json": {
+      "bytes": 3568,
+      "sha256": "69f02164e1f4b28134e351c99ccc64920bde981a4b2d32788e41dca976b86871"
+    },
+    "docs/slicer/b2-source-results.json": {
+      "bytes": 1874,
+      "sha256": "c075ce1d9611d2e1b0c17c83ac4f1576c124b73c9186e23dd6d7c58405fc1a66"
+    },
+    "slicer/builder/PUBLIC-README.md": {
+      "bytes": 3428,
+      "sha256": "3990bc1365ef3234b819be5c81b8c748d5854a9763f492efa38089b9072ff5a8"
+    },
+    "slicer/builder/README.md": {
+      "bytes": 8086,
+      "sha256": "2cdaf158719efbd6898199952d0f7573f3a30fcad0066f9e435c30ce639a8ea6"
+    },
+    "slicer/builder/build-candidate.workflow.yml": {
+      "bytes": 5342,
+      "sha256": "4277c4a292b9ebf4dbc707f61435cec0c68c3e91870317a36b900e126344d96c"
+    },
+    "slicer/builder/driver.py": {
+      "bytes": 9178,
+      "sha256": "89b10d2e29d18b4a766724078740019c0192c593dfd1230212c614669d998f60"
+    },
+    "slicer/builder/package.py": {
+      "bytes": 2567,
+      "sha256": "57478d355dd656f23272e9c3432afcd1cf944c3df84b8d63fa1d4b0e29b8724f"
+    },
+    "slicer/engine/LICENSE.BambuStudio.txt": {
+      "bytes": 34520,
+      "sha256": "57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6"
+    },
+    "slicer/engine/NOTICE.md": {
+      "bytes": 2084,
+      "sha256": "64af7525bc356a17347b77cb0044ab21391012f96d9a8b60ec7c6131352dff83"
+    },
+    "slicer/engine/experiments/0003-x11-glx-rendering.patch": {
+      "bytes": 1331,
+      "sha256": "cd276540ac35bbf386b341d8b9b1b79707161e221f97a77acf1d22d1b166f022"
+    },
+    "slicer/engine/patches/0001-first-layer-statistics.patch": {
+      "bytes": 1693,
+      "sha256": "a902869efe8d388ebfc1012414a9702e0e9fae54ecdfb6775a6b300427b00030"
+    },
+    "slicer/engine/patches/0002-filament-volume-units.patch": {
+      "bytes": 725,
+      "sha256": "c12b86097558f7c809275113e094396f0c214c8eb568853f95d9596e9101989d"
+    },
+    "slicer/tests/test_builder.py": {
+      "bytes": 7105,
+      "sha256": "6e7864f49e23cd82a52859b54ec44494ab37822379b7825cb5386bbbe210e220"
+    }
+  },
+  "format": 1,
+  "printer_ready": false,
+  "upstream_revision": "926a7192574bcb9b3a732e1ec59a46d79cb45466"
+}
