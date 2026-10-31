@@ -16,11 +16,11 @@ diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
 +    get_directory_property(wxWidgets_CXX_FLAGS DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_CXX_FLAGS)
 +    get_directory_property(wxWidgets_USE_FILE DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_USE_FILE)
 +    include(${wxWidgets_USE_FILE})
-+    # libslic3r references Http/BBLUtil/NanoSVG in libslic3r_gui, which itself
-+    # references libslic3r. Rescan the static archives to resolve this cycle.
-+    # GUI's transitive links also supply OpenSSL, curl, wx and rendering libs.
++    # Core/GUI and core/libnest2d have reciprocal static archive links.
++    # Keep the complete cycle in ONE group: leaving libnest2d outside makes
++    # CMake's group dependency graph cyclic. Retain transitive GUI links.
 +    target_link_libraries(test_common INTERFACE
-+        "$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r>")
++        "$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r,libnest2d>")
 +endif()
 +
  add_subdirectory(libnest2d)

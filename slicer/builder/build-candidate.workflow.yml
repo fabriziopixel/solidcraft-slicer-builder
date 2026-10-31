@@ -83,6 +83,12 @@ jobs:
             libbz2-dev libwebkit2gtk-4.1-dev pkg-config libxrandr-dev libxinerama-dev libxcursor-dev \
             libxi-dev libwayland-dev wayland-protocols libegl1-mesa-dev xvfb mesa-utils
 
+      - name: Regress CMake archive cycle before the expensive dependency build
+        run: |
+          command -v cmake
+          command -v c++
+          python3 -m unittest discover -s slicer/tests -p test_cmake_linkage.py -v
+
       - name: Compile candidate and run CTest (no release or printer connection)
         shell: bash
         run: |

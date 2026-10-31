@@ -16,6 +16,7 @@ FILES = (
     "slicer/builder/driver.py",
     "slicer/builder/package.py",
     "slicer/tests/test_builder.py",
+    "slicer/tests/test_cmake_linkage.py",
     "slicer/engine/patches/0001-first-layer-statistics.patch",
     "slicer/engine/patches/0002-filament-volume-units.patch",
     "slicer/engine/patches/0004-libnest2d-test-callback.patch",
