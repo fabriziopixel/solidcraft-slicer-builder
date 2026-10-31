@@ -2,8 +2,8 @@
   "compiled": false,
   "files": {
     "docs/slicer/b2-build-fixes.json": {
-      "bytes": 8867,
-      "sha256": "0854f79ee582cf26e744c05d676768b0b0db4356fd00b780ae0c163e1ea097fa"
+      "bytes": 9832,
+      "sha256": "f708f0c675d6ff75a744fd388dda71d48659bcb116708b0d3c6ab4a1c460d62e"
     },
     "docs/slicer/b2-build-source-index.json": {
       "bytes": 1834,
@@ -22,24 +22,24 @@
       "sha256": "c075ce1d9611d2e1b0c17c83ac4f1576c124b73c9186e23dd6d7c58405fc1a66"
     },
     "slicer/builder/PUBLIC-README.md": {
-      "bytes": 4932,
-      "sha256": "d6bdb73f9138f9695161fed1c0358e3dac992d316c3219e8ee45372c46c5f705"
+      "bytes": 5708,
+      "sha256": "95d91dba879ba1f597bd7950224f91d6bd92f9d28559b8e22cc4a75391621c2f"
     },
     "slicer/builder/README.md": {
-      "bytes": 13053,
-      "sha256": "055dd07ad66c3b40a3d5f519ca9b64e0d6e2c2387899f4123a9e03f0eb9e3dcb"
+      "bytes": 13937,
+      "sha256": "ebcb54436203ab65842a00af858df7a796b9488ab5270793897071a4e3c63547"
     },
     "slicer/builder/build-candidate.workflow.yml": {
-      "bytes": 5430,
-      "sha256": "83dbf2a8a25f0c15ce960bc8736ae372a3d4533ba0b113897ed496200ec8ad8d"
+      "bytes": 5661,
+      "sha256": "e6dc93dcbd810cab09612d069c248036a18a1726af51c863fdc6a249e27a2331"
     },
     "slicer/builder/driver.py": {
       "bytes": 9932,
       "sha256": "bfc57aba9eb968a8163d95ffa4c072685754476004a2ab0d03b76cf94608d4ea"
     },
     "slicer/builder/package.py": {
-      "bytes": 2979,
-      "sha256": "e28286ecc4bc0e4a2258c77238716b8aac79f2b4c722b5fe1ad079157908bd60"
+      "bytes": 3021,
+      "sha256": "0d196c9fe2639e53e8232c64ab3be8b617389d6ffdb2901e21ab5b76a825cc97"
     },
     "slicer/engine/LICENSE.BambuStudio.txt": {
       "bytes": 34520,
@@ -82,12 +82,16 @@
       "sha256": "3d1a14adfb344b7d851cc4d024df8dfbaa1920e4f195e5e44c1cc3b870e9a5f7"
     },
     "slicer/engine/patches/0009-linux-test-link-dependencies.patch": {
-      "bytes": 1613,
-      "sha256": "fb89c6b27ece6d3fd837d054077f58c8aa3e9d60ff989d8df65a8827a9ab6f4f"
+      "bytes": 1837,
+      "sha256": "7ca36c42f1c66778181b156ec534cb83bf8587e3083289b6b6a65ff8d8c2480c"
     },
     "slicer/tests/test_builder.py": {
-      "bytes": 10197,
-      "sha256": "a3cbf188864379b65661da9c7287e93d2b1ac8e3ac5a4350aeea29a01e673639"
+      "bytes": 10398,
+      "sha256": "4607e5baa51a2d04742ab9ac27d4a89a90a2de70a0df6edf6abdebd506e4f6a0"
+    },
+    "slicer/tests/test_cmake_linkage.py": {
+      "bytes": 5424,
+      "sha256": "85e77d54ad201a89e84a27ee8f4f6f644b82530d68e0c974eeb8b21f477ada2e"
     }
   },
   "format": 1,

@@ -11,7 +11,7 @@ GROUP = "$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r,libnest2d>"
 
 @unittest.skipUnless(shutil.which("cmake") and shutil.which("c++"), "CMake/C++ fixture tools unavailable")
 class CMakeLinkageTests(unittest.TestCase):
-    def fixture(self, root, broken=False):
+    def fixture(self, root, broken=False, missing_found=False):
         def put(name, text):
             path = root / name
             path.parent.mkdir(parents=True, exist_ok=True)
@@ -23,9 +23,11 @@ enable_testing()
 add_subdirectory(src)
 add_subdirectory(tests)
 """)
-        put("src/CMakeLists.txt", """set(wxWidgets_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/wx")
+        put("src/CMakeLists.txt", """set(wxWidgets_FOUND TRUE)
+set(wxWidgets_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/wx")
 set(wxWidgets_DEFINITIONS WX_FIXTURE=1)
-set(wxWidgets_USE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/wx-use.cmake")
+set(wxWidgets_USE_FILE "${CMAKE_ROOT}/Modules/UsewxWidgets.cmake")
+include(${wxWidgets_USE_FILE})
 add_library(external_dep STATIC external.cpp)
 add_library(libnest2d STATIC nest.cpp nest_tail.cpp)
 add_library(libslic3r STATIC core.cpp)
@@ -34,12 +36,6 @@ add_library(libslic3r_gui STATIC gui.cpp)
 target_link_libraries(libnest2d PUBLIC external_dep libslic3r)
 target_link_libraries(libslic3r PUBLIC libnest2d)
 target_link_libraries(libslic3r_gui PUBLIC libslic3r)
-""")
-        put("src/wx-use.cmake", """if(NOT wxWidgets_INCLUDE_DIRS OR NOT wxWidgets_DEFINITIONS)
-    message(FATAL_ERROR "wx usage missing from test directory")
-endif()
-include_directories(${wxWidgets_INCLUDE_DIRS})
-add_compile_definitions(${wxWidgets_DEFINITIONS})
 """)
         put("src/wx/fixture.h", "#define WX_HEADER_PRESENT 1\n")
         put("src/external.cpp", "int external_value() { return 7; }\n")
@@ -58,6 +54,12 @@ int main() { return nest() == 7 ? 0 : 1; }
         # Execute the actual added CMake code, not a parallel copy of the fix.
         block = "\n".join(line[1:] for line in patch.splitlines()
                           if line.startswith("+") and not line.startswith("+++"))
+        if missing_found:
+            # Reproduce the previous patch: UsewxWidgets sees an unset FOUND
+            # in this sibling directory and silently skips includes/flags.
+            start = block.index("    get_directory_property(wxWidgets_FOUND")
+            end = block.index("    get_directory_property(wxWidgets_INCLUDE_DIRS")
+            block = block[:start] + block[end:]
         if broken:
             block = block.replace(GROUP, "$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r>")
         suites = ("libnest2d", "libslic3r", "slic3rutils", "fff_print", "sla_print",
@@ -86,6 +88,16 @@ add_test(NAME {suite} COMMAND {suite}_tests)
             output = self.run_tool("cmake", "-S", str(root), "-B", str(root / "build"), success=False)
             self.assertIn("strongly connected component (cycle)", output)
             self.assertIn("libnest2d", output)
+
+    def test_missing_found_reproduces_silent_wx_skip(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            self.fixture(root, missing_found=True)
+            build = root / "build"
+            output = self.run_tool("cmake", "-S", str(root), "-B", str(build))
+            self.assertIn("wxWidgets requested but not found", output)
+            output = self.run_tool("cmake", "--build", str(build), success=False)
+            self.assertIn("fixture.h", output)
 
     def test_complete_group_configures_links_and_runs_all_suites(self):
         with tempfile.TemporaryDirectory() as temp:

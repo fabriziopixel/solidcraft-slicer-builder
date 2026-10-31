@@ -156,6 +156,8 @@ class KitTests(unittest.TestCase):
     def test_linux_link_patch_keeps_all_suites_and_uses_real_libraries(self):
         text = (driver.ROOT / "slicer/engine/patches/0009-linux-test-link-dependencies.patch").read_text()
         self.assertIn('"$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r,libnest2d>"', text)
+        self.assertIn('get_directory_property(wxWidgets_FOUND DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_FOUND)', text)
+        self.assertIn('if(NOT wxWidgets_FOUND)', text)
         self.assertIn('include(${wxWidgets_USE_FILE})', text)
         self.assertNotIn("\n-add_subdirectory", text)
         self.assertNotIn("\n-add_test", text)

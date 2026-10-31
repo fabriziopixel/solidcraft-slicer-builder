@@ -1,7 +1,7 @@
 diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
 --- a/tests/CMakeLists.txt
 +++ b/tests/CMakeLists.txt
-@@ -27,6 +27,24 @@
+@@ -27,6 +27,28 @@
  
  set_property(GLOBAL PROPERTY USE_FOLDERS ON)
  
@@ -10,6 +10,10 @@ diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
 +# implementations, not stubs. wx setup in src/ is directory-scoped, so import
 +# it here as well for tests that directly include GUI headers.
 +if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++    get_directory_property(wxWidgets_FOUND DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_FOUND)
++    if(NOT wxWidgets_FOUND)
++        message(FATAL_ERROR "Linux tests require wxWidgets found in src/")
++    endif()
 +    get_directory_property(wxWidgets_INCLUDE_DIRS DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_INCLUDE_DIRS)
 +    get_directory_property(wxWidgets_DEFINITIONS DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_DEFINITIONS)
 +    get_directory_property(wxWidgets_DEFINITIONS_DEBUG DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_DEFINITIONS_DEBUG)
