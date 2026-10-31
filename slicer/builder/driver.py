@@ -55,7 +55,9 @@ def plan(source, jobs=1):
          "-DCMAKE_PREFIX_PATH={OUTPUT}/deps-build/destdir/usr/local", "-DSLIC3R_STATIC=1",
          "-DSLIC3R_GTK=3", "-DCMAKE_BUILD_TYPE=Release", "-DBBL_RELEASE_TO_PUBLIC=1",
          "-DBBL_INTERNAL_TESTING=0", "-DSLIC3R_BUILD_TESTS=ON"],
-        ["cmake", "--build", "build", "--parallel", str(jobs)],
+        # Collect all independently reachable compile failures in one attempt.
+        # Ninja still exits nonzero on any failure; CTest is never skipped on success.
+        ["cmake", "--build", "build", "--parallel", str(jobs), "--", "-k", "0"],
         ["ctest", "--test-dir", "build", "--output-on-failure", "--no-tests=error"],
     ]
 

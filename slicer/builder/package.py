@@ -20,6 +20,8 @@ FILES = (
     "slicer/engine/patches/0002-filament-volume-units.patch",
     "slicer/engine/patches/0004-libnest2d-test-callback.patch",
     "slicer/engine/patches/0005-3mf-test-rotation.patch",
+    "slicer/engine/patches/0006-obj-test-loader.patch",
+    "slicer/engine/patches/0007-fff-test-current-api.patch",
     "docs/slicer/b2-build-fixes.json",
     "slicer/engine/experiments/0003-x11-glx-rendering.patch",
     "slicer/engine/LICENSE.BambuStudio.txt",

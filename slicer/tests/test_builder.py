@@ -69,7 +69,14 @@ class BuilderTests(unittest.TestCase):
     def test_two_job_plan_keeps_dependency_superbuild_serial(self):
         commands = driver.plan(self.source, jobs=2)
         self.assertEqual(commands[3][-2:], ["--parallel", "1"])
-        self.assertEqual(commands[5][-2:], ["--parallel", "2"])
+        self.assertEqual(commands[5][3:5], ["--parallel", "2"])
+
+    def test_main_build_collects_all_errors_but_still_requires_tests(self):
+        commands = driver.plan(self.source, jobs=2)
+        self.assertEqual(commands[5][-3:], ["--", "-k", "0"])
+        self.assertEqual(commands[3][-2:], ["--parallel", "1"])
+        self.assertEqual(commands[-1][0], "ctest")
+        self.assertIn("--no-tests=error", commands[-1])
 
     def test_unbounded_parallelism_rejected_before_build(self):
         with self.assertRaisesRegex(ValueError, "one or two"):

@@ -16,6 +16,19 @@ Run `41064607414` failed during compilation of `tests/libnest2d/libnest2d_tests_
 
 Run `41106982877` advanced past those callbacks but failed compiling `tests/libslic3r/test_3mf.cpp:97`: the axis-angle `ModelInstance::set_rotation` overload is no longer available. Test-only patch `0005-3mf-test-rotation.patch` reads the current rotation vector, changes its X component to the same angle and calls the vector setter. Other axes, expected geometry, tolerances and assertions are preserved. The test and `Model.hpp` hashes are also pinned in the build-fix manifest. No runtime code or test selection is changed; compilation/CTest still requires another manual attempt.
 
+## Broader static API review after the third failed build
+
+Run `41127129442` failed on the shared `load_obj` test helper, whose current API also requires `ObjInfo` and a message output. Patch `0006` supplies these outputs without changing the mesh or the loader defaults. A broader scan of 75 test/build files and 57 directly included headers found additional active FFF test API drift addressed by `0007`:
+
+- `set_extruder(0, 0)` explicitly selects filament/nozzle 0 for the single-extruder fixture;
+- `eager_lift(LiftType::NormalLift)` requests the immediate vertical lift tested by the old `lift()` assertions; `lazy_lift` would defer motion and is not substituted;
+- `z_hop` and `initial_layer_print_height` replace removed configuration members;
+- brim counts now sum the per-object map, preserving the original entity vs recursive item count and numeric expectations for these object-only fixtures.
+
+Source/API hashes are checked by the build-fix manifest. All four test patches apply in a new reviewed-source copy; assertion/test counts, numeric comparison constants and existing disabled blocks are preserved. This static review is **not** a C++ type check or proof of equivalent runtime behavior. Old configuration keys in test input files may still cause runtime failures; none are silently renamed or discarded to force a green test.
+
+The main Ninja build now uses `-k 0` to compile all independently reachable targets even after an error. It still exits nonzero for any failure, keeps compiler parallelism bounded, and does not run CTest on an incomplete build. The dependency superbuild remains serial/fail-fast. This collects more diagnostics per attempt, not an exception to the success gate. No automatic retry loop or test exclusions were added.
+
 ## Fetch public upstream sources on the builder
 
 ```sh

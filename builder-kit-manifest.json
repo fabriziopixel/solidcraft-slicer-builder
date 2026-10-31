@@ -2,8 +2,8 @@
   "compiled": false,
   "files": {
     "docs/slicer/b2-build-fixes.json": {
-      "bytes": 2050,
-      "sha256": "065405c10700c88939ebcc3427322e3985ed46f58bd93147493c4e7ed14d5618"
+      "bytes": 4514,
+      "sha256": "f50036820a7901f2c277dbc1d730d04bcc4749d4569c30d87924af6b6beb9095"
     },
     "docs/slicer/b2-build-source-index.json": {
       "bytes": 1834,
@@ -22,32 +22,32 @@
       "sha256": "c075ce1d9611d2e1b0c17c83ac4f1576c124b73c9186e23dd6d7c58405fc1a66"
     },
     "slicer/builder/PUBLIC-README.md": {
-      "bytes": 4019,
-      "sha256": "b212cef66272dc1b500fcac6368aea81cd90fe3771d0ed4844e37da605f9661a"
+      "bytes": 4494,
+      "sha256": "4ef605aa50ee4b48db4c0c050e8a863deefff871611b46c12228a04dc49b5284"
     },
     "slicer/builder/README.md": {
-      "bytes": 9438,
-      "sha256": "44ebe2318ed6a3a2210124d3b0bcc042cf8d290f1a5219a7866f74866f525219"
+      "bytes": 11202,
+      "sha256": "de594c4d63c5e77e3ee696af2739e9e995b806f3bf8f040ab65b7fdd204e7f7e"
     },
     "slicer/builder/build-candidate.workflow.yml": {
       "bytes": 5430,
       "sha256": "83dbf2a8a25f0c15ce960bc8736ae372a3d4533ba0b113897ed496200ec8ad8d"
     },
     "slicer/builder/driver.py": {
-      "bytes": 9749,
-      "sha256": "df1cf0a9a0f77087269349e46e6469827b6854f753b1fc60fef0a01e46d8405a"
+      "bytes": 9932,
+      "sha256": "bfc57aba9eb968a8163d95ffa4c072685754476004a2ab0d03b76cf94608d4ea"
     },
     "slicer/builder/package.py": {
-      "bytes": 2728,
-      "sha256": "d13bf0d6097768485e0b33d79f96f29fa3339273b4b457cca8a31730bf4c5b71"
+      "bytes": 2845,
+      "sha256": "65e690029bd3f696edf7f9d205a86c752af7d02a781a3cdc17c3354fc30ab304"
     },
     "slicer/engine/LICENSE.BambuStudio.txt": {
       "bytes": 34520,
       "sha256": "57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6"
     },
     "slicer/engine/NOTICE.md": {
-      "bytes": 2084,
-      "sha256": "64af7525bc356a17347b77cb0044ab21391012f96d9a8b60ec7c6131352dff83"
+      "bytes": 2194,
+      "sha256": "74e51e112874ab699779cb641e53ec57d3f4d8edc6239ee3e23f5625c06d8410"
     },
     "slicer/engine/experiments/0003-x11-glx-rendering.patch": {
       "bytes": 1331,
@@ -69,9 +69,17 @@
       "bytes": 535,
       "sha256": "bf2b5bd8292295064a55ecc213f297a4f45e6945140d0d5dbe230b5bba3e712d"
     },
+    "slicer/engine/patches/0006-obj-test-loader.patch": {
+      "bytes": 408,
+      "sha256": "2c8a1dbd3fae41dc2882179a8b40099379440d641ce868ffebf951217d691dae"
+    },
+    "slicer/engine/patches/0007-fff-test-current-api.patch": {
+      "bytes": 5272,
+      "sha256": "c24569e3750cec1c1fcdaab88e1339beb50471c32546b682bad397e9e410013c"
+    },
     "slicer/tests/test_builder.py": {
-      "bytes": 8562,
-      "sha256": "aa49dc587e9b2f942ca79b1605988a3c6236b0ab6dc55c5f697236f79b64681c"
+      "bytes": 8924,
+      "sha256": "981f08fb9f9d5724ccc3a856df06ea7b46e04a716d65f68df07dc823bb9226f5"
     }
   },
   "format": 1,

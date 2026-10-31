@@ -1,0 +1,106 @@
+diff --git a/tests/fff_print/test_data.hpp b/tests/fff_print/test_data.hpp
+--- a/tests/fff_print/test_data.hpp
++++ b/tests/fff_print/test_data.hpp
+@@ -15,3 +15,20 @@
+ constexpr double MM_PER_MIN = 60.0;
+ 
++// Object brim paths are now stored per object. Preserve aggregate test counts.
++inline size_t brim_items_count(Print &print)
++{
++    size_t count = 0;
++    for (const auto &entry : print.get_brimMap())
++        count += entry.second.items_count();
++    return count;
++}
++
++inline size_t brim_entities_count(Print &print)
++{
++    size_t count = 0;
++    for (const auto &entry : print.get_brimMap())
++        count += entry.second.entities.size();
++    return count;
++}
++
+ /// Enumeration of test meshes
+diff --git a/tests/fff_print/test_gcodewriter.cpp b/tests/fff_print/test_gcodewriter.cpp
+--- a/tests/fff_print/test_gcodewriter.cpp
++++ b/tests/fff_print/test_gcodewriter.cpp
+@@ -15,4 +15,4 @@
+         std::vector<unsigned int> extruder_ids {0};
+         writer.set_extruders(extruder_ids);
+-        writer.set_extruder(0);
++        writer.set_extruder(0, 0);
+ 
+@@ -22,5 +22,5 @@
+             AND_WHEN("GcodeWriter::Lift() is called") {
+-                REQUIRE(writer.lift().size() > 0);
++                REQUIRE(writer.eager_lift(LiftType::NormalLift).size() > 0);
+                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
+-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
++                    REQUIRE(writer.travel_to_z(trouble_Z + config.z_hop.values[0]).size() == 0);
+                     AND_WHEN("GCodeWriter::Unlift() is called") {
+@@ -28,3 +28,3 @@
+                         THEN("GCodeWriter::Lift() emits gcode.") {
+-                            REQUIRE(writer.lift().size() > 0);
++                            REQUIRE(writer.eager_lift(LiftType::NormalLift).size() > 0);
+                         }
+@@ -38,5 +38,5 @@
+             AND_WHEN("GcodeWriter::Lift() is called") {
+-                REQUIRE(writer.lift().size() > 0);
++                REQUIRE(writer.eager_lift(LiftType::NormalLift).size() > 0);
+                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
+-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
++                    REQUIRE(writer.travel_to_z(trouble_Z + config.z_hop.values[0]).size() == 0);
+                     AND_WHEN("GCodeWriter::Unlift() is called") {
+@@ -44,3 +44,3 @@
+                         THEN("GCodeWriter::Lift() emits gcode.") {
+-                            REQUIRE(writer.lift().size() > 0);
++                            REQUIRE(writer.eager_lift(LiftType::NormalLift).size() > 0);
+                         }
+@@ -54,5 +54,5 @@
+             AND_WHEN("GcodeWriter::Lift() is called") {
+-                REQUIRE(writer.lift().size() > 0);
++                REQUIRE(writer.eager_lift(LiftType::NormalLift).size() > 0);
+                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
+-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
++                    REQUIRE(writer.travel_to_z(trouble_Z + config.z_hop.values[0]).size() == 0);
+                     AND_WHEN("GCodeWriter::Unlift() is called") {
+@@ -60,3 +60,3 @@
+                         THEN("GCodeWriter::Lift() emits gcode.") {
+-                            REQUIRE(writer.lift().size() > 0);
++                            REQUIRE(writer.eager_lift(LiftType::NormalLift).size() > 0);
+                         }
+diff --git a/tests/fff_print/test_print.cpp b/tests/fff_print/test_print.cpp
+--- a/tests/fff_print/test_print.cpp
++++ b/tests/fff_print/test_print.cpp
+@@ -101,3 +101,3 @@
+             THEN("Brim Extrusion collection has 3 loops in it") {
+-                REQUIRE(print.brim().items_count() == 3);
++                REQUIRE(brim_items_count(print) == 3);
+             }
+@@ -111,3 +111,3 @@
+             THEN("Brim Extrusion collection has 6 loops in it") {
+-                REQUIRE(print.brim().items_count() == 6);
++                REQUIRE(brim_items_count(print) == 6);
+             }
+@@ -123,3 +123,3 @@
+             THEN("Brim Extrusion collection has 12 loops in it") {
+-                REQUIRE(print.brim().items_count() == 14);
++                REQUIRE(brim_items_count(print) == 14);
+             }
+diff --git a/tests/fff_print/test_skirt_brim.cpp b/tests/fff_print/test_skirt_brim.cpp
+--- a/tests/fff_print/test_skirt_brim.cpp
++++ b/tests/fff_print/test_skirt_brim.cpp
+@@ -163,3 +163,3 @@
+ 		        Slic3r::Test::init_and_process_print({TestMesh::cube_20x20x20}, print, config);
+-                REQUIRE(print.brim().entities.size() == 2);
++                REQUIRE(brim_entities_count(print) == 2);
+             }
+diff --git a/tests/fff_print/test_support_material.cpp b/tests/fff_print/test_support_material.cpp
+--- a/tests/fff_print/test_support_material.cpp
++++ b/tests/fff_print/test_support_material.cpp
+@@ -32,3 +32,3 @@
+-		first_support_layer_height_ok = support_layers.front()->print_z == print.config().first_layer_height.value;
++		first_support_layer_height_ok = support_layers.front()->print_z == print.config().initial_layer_print_height.value;
+ 
+ 		layer_height_minimum_ok = true;
