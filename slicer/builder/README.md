@@ -29,6 +29,18 @@ Source/API hashes are checked by the build-fix manifest. All four test patches a
 
 The main Ninja build now uses `-k 0` to compile all independently reachable targets even after an error. It still exits nonzero for any failure, keeps compiler parallelism bounded, and does not run CTest on an incomplete build. The dependency superbuild remains serial/fail-fast. This collects more diagnostics per attempt, not an exception to the success gate. No automatic retry loop or test exclusions were added.
 
+## Geometry/raster and Linux linkage fixes after run 41176485962
+
+The error-collecting build reached multiple remaining failures, rather than stopping at the first stale test. Patch `0008` addresses all observed geometry/raster compile errors:
+
+- explicit `Polygons`/`Polylines` arguments resolve three ambiguous clipping calls;
+- `sla::PixelDim` and `sla::Resolution` replace former nested `RasterBase` type names in five test files;
+- 16 Voronoi test calls use the current diagram member API. Segment construction passes `false` for the new automatic-repair option: the previous free function constructed directly through Boost, without repair. Point construction remains direct Boost internally.
+
+No assertions, expected numbers, tolerances, test cases or existing disabled blocks are removed. PNG buffer errors were downstream of the invalid resolution type; no PNG validation is bypassed.
+
+Patch `0009` imports the same directory-scoped wx compile settings used by `src/` into the Linux test directory. The filament-store source now really includes GUI_App, despite its stale upstream CMake comment claiming no wx dependency. Core objects also reference Http/BBLUtil and NanoSVG implementations in the GUI archive. Linux test_common therefore links the **real** GUI/core libraries in a CMake `LINK_GROUP:RESCAN` (CMake >=3.24), preserving their transitive OpenSSL/curl/wx dependencies and resolving the static archive cycle. No stubs, replacement encryption, skipped suites or production-source edits are introduced. This increases test linkage to the GUI stack; it does not initialize a display or authorize networking. Full C++ compilation, link and CTest runtime validation remain pending on GitHub. Local checks only validate hashes, patch applicability and Python behavior; CMake is not installed on the CAD VPS.
+
 ## Fetch public upstream sources on the builder
 
 ```sh
@@ -56,7 +68,7 @@ python3 -m slicer.builder.driver --source /builder/upstream \
   --output /builder/candidate-metadata --confirm-isolated-builder
 ```
 
-The driver clones the local checkout into a new output directory, checks out the exact revision, verifies the 13 reviewed source hashes and both metadata-patch hashes, applies patches in the copy, then configures/builds dependencies and Studio with tests enabled. Default parallelism is one; `--jobs 2` is the bounded CI option, while the top-level dependency superbuild stays serial. Third-party build subprocesses receive an allowlisted environment without CI tokens. `ctest --no-tests=error` refuses an empty test run. The original checkout is not patched. There is no build resume/cleanup switch: preserve a failed attempt for inspection and choose a new output directory for another attempt. A build can take hours; stop the disposable VM if cancellation leaves compiler children running. This initial driver does not supply a production scheduler, hard build-time quotas or cgroup supervision.
+The driver clones the local checkout into a new output directory, checks out the exact revision, verifies the reviewed source and patch hashes in the metadata, rendering and build-fix manifests, applies patches in the copy, then configures/builds dependencies and Studio with tests enabled. Default parallelism is one; `--jobs 2` is the bounded CI option, while the top-level dependency superbuild stays serial. Third-party build subprocesses receive an allowlisted environment without CI tokens. `ctest --no-tests=error` refuses an empty test run. The original checkout is not patched. There is no build resume/cleanup switch: preserve a failed attempt for inspection and choose a new output directory for another attempt. A build can take hours; stop the disposable VM if cancellation leaves compiler children running. This initial driver does not supply a production scheduler, hard build-time quotas or cgroup supervision.
 
 ## Optional rendering experiment, NOT the default
 

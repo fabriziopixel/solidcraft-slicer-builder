@@ -22,6 +22,8 @@ FILES = (
     "slicer/engine/patches/0005-3mf-test-rotation.patch",
     "slicer/engine/patches/0006-obj-test-loader.patch",
     "slicer/engine/patches/0007-fff-test-current-api.patch",
+    "slicer/engine/patches/0008-geometry-raster-test-api.patch",
+    "slicer/engine/patches/0009-linux-test-link-dependencies.patch",
     "docs/slicer/b2-build-fixes.json",
     "slicer/engine/experiments/0003-x11-glx-rendering.patch",
     "slicer/engine/LICENSE.BambuStudio.txt",

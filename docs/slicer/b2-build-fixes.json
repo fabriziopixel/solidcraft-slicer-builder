@@ -1,21 +1,60 @@
 {
   "revision": "926a7192574bcb9b3a732e1ec59a46d79cb45466",
-  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. CI run 41127129442 then failed on load_obj in the shared test helper. Broader static review also found stale writer lift/extruder calls, retract_lift and first_layer_height fields, and global brim access in active FFF tests. Adapt these to the reviewed current APIs. Numeric expectations and tolerances are unchanged; brim assertion expressions sum the current per-object map. Compilation and runtime semantics still require C++/CTest validation.",
+  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. CI run 41127129442 then failed on load_obj in the shared test helper. Broader static review also found stale writer lift/extruder calls, retract_lift and first_layer_height fields, and global brim access in active FFF tests. Adapt these to the reviewed current APIs. Numeric expectations and tolerances are unchanged; brim assertion expressions sum the current per-object map. Compilation and runtime semantics still require C++/CTest validation. Run 41176485962 collected further stale raster type names, ambiguous polygon overloads, removed free Voronoi construction calls, missing wx compile usage and static GUI/core linkage dependencies. Patches 0008/0009 retain all assertions and test targets. Segment Voronoi construction disables the new automatic repair to retain the old direct Boost construction semantics. Linux tests link the real GUI/core archive group and use the same wx setup as src; no mocks or networking execution are added. C++ build/CTest remains unverified.",
   "source_base_url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/",
   "sources": [
-    {"path": "tests/test_utils.hpp", "sha256": "cc3586661c340038dad1904095b33f70a54b1f646c750983136929ed560ab549"},
-    {"path": "src/libslic3r/Format/OBJ.hpp", "sha256": "860e7bf1f35c1632bc2537501a1158e012969a2dd65fd79e47ec6a7e9172b133"},
-    {"path": "tests/fff_print/test_data.hpp", "sha256": "b9c950b3012acef73595c0faad20b788e10a964b7d567579911cd845ae080fcb"},
-    {"path": "tests/fff_print/test_gcodewriter.cpp", "sha256": "c2913a4356cead70552449f55efe0c58f89968d54a9bc4c94a26426bba9717c2"},
-    {"path": "tests/fff_print/test_print.cpp", "sha256": "0ac1e2e9ff36bd11d4d07892d079bccf5ab750d71f862b4ab2ec5a34b05899fa"},
-    {"path": "tests/fff_print/test_skirt_brim.cpp", "sha256": "1088a502e8037636e1f3471721a93589b5bffdd92f2d6e0f7befacb3569707f9"},
-    {"path": "tests/fff_print/test_support_material.cpp", "sha256": "8abf7f389f9cab5edd8c19f56550161580bf6920f887b820439e32bbbe023bf2"},
-    {"path": "src/libslic3r/Print.hpp", "sha256": "a2a4223ca5151465f669447d25d7947238aa75556278443d14478cc9c70b6b5c"},
-    {"path": "src/libslic3r/GCodeWriter.hpp", "sha256": "e0e3ccaf1d9e0dcd292825ac5ffd38c547c1f452bc776c8916fd4339a6a11457"},
-    {"path": "src/libslic3r/GCodeWriter.cpp", "sha256": "fd79bd9b786100eb09257914fd714dd2a69e48faaf0bb51b410a2226b7065c8d"},
-    {"path": "src/libslic3r/PrintConfig.hpp", "sha256": "ec03ce1948fc40ba8be27525f95eadbe4ad925356ccb4d51a81d8bf23b09a9db"},
-    {"path": "src/libslic3r/PrintConfig.cpp", "sha256": "d4e96aaca40b0698de720537ba0d2af46efbb576e183507c763c0654e394e99c"},
-    {"path": "src/libslic3r/ExtrusionEntityCollection.hpp", "sha256": "d0035c4b3e168d34fd201d8d0141d806a7e8223041c5e85d08ea085ae62d2a5d"},
+    {
+      "path": "tests/test_utils.hpp",
+      "sha256": "cc3586661c340038dad1904095b33f70a54b1f646c750983136929ed560ab549"
+    },
+    {
+      "path": "src/libslic3r/Format/OBJ.hpp",
+      "sha256": "860e7bf1f35c1632bc2537501a1158e012969a2dd65fd79e47ec6a7e9172b133"
+    },
+    {
+      "path": "tests/fff_print/test_data.hpp",
+      "sha256": "b9c950b3012acef73595c0faad20b788e10a964b7d567579911cd845ae080fcb"
+    },
+    {
+      "path": "tests/fff_print/test_gcodewriter.cpp",
+      "sha256": "c2913a4356cead70552449f55efe0c58f89968d54a9bc4c94a26426bba9717c2"
+    },
+    {
+      "path": "tests/fff_print/test_print.cpp",
+      "sha256": "0ac1e2e9ff36bd11d4d07892d079bccf5ab750d71f862b4ab2ec5a34b05899fa"
+    },
+    {
+      "path": "tests/fff_print/test_skirt_brim.cpp",
+      "sha256": "1088a502e8037636e1f3471721a93589b5bffdd92f2d6e0f7befacb3569707f9"
+    },
+    {
+      "path": "tests/fff_print/test_support_material.cpp",
+      "sha256": "8abf7f389f9cab5edd8c19f56550161580bf6920f887b820439e32bbbe023bf2"
+    },
+    {
+      "path": "src/libslic3r/Print.hpp",
+      "sha256": "a2a4223ca5151465f669447d25d7947238aa75556278443d14478cc9c70b6b5c"
+    },
+    {
+      "path": "src/libslic3r/GCodeWriter.hpp",
+      "sha256": "e0e3ccaf1d9e0dcd292825ac5ffd38c547c1f452bc776c8916fd4339a6a11457"
+    },
+    {
+      "path": "src/libslic3r/GCodeWriter.cpp",
+      "sha256": "fd79bd9b786100eb09257914fd714dd2a69e48faaf0bb51b410a2226b7065c8d"
+    },
+    {
+      "path": "src/libslic3r/PrintConfig.hpp",
+      "sha256": "ec03ce1948fc40ba8be27525f95eadbe4ad925356ccb4d51a81d8bf23b09a9db"
+    },
+    {
+      "path": "src/libslic3r/PrintConfig.cpp",
+      "sha256": "d4e96aaca40b0698de720537ba0d2af46efbb576e183507c763c0654e394e99c"
+    },
+    {
+      "path": "src/libslic3r/ExtrusionEntityCollection.hpp",
+      "sha256": "d0035c4b3e168d34fd201d8d0141d806a7e8223041c5e85d08ea085ae62d2a5d"
+    },
     {
       "path": "tests/libslic3r/test_3mf.cpp",
       "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/tests/libslic3r/test_3mf.cpp",
@@ -35,11 +74,105 @@
       "path": "src/libnest2d/include/libnest2d/placers/nfpplacer.hpp",
       "url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/src/libnest2d/include/libnest2d/placers/nfpplacer.hpp",
       "sha256": "62148557ac4a3dae0eb5db29821e771c2d8b3023082e89f16de8785eba0a55d8"
+    },
+    {
+      "path": "tests/libslic3r/test_clipper_utils.cpp",
+      "sha256": "3cbc757007365afef049dda3ddd84857bdbe506728e965c487300f71c6fe22ed"
+    },
+    {
+      "path": "tests/libslic3r/test_marchingsquares.cpp",
+      "sha256": "df767e8d3a8e39eddde1d963f87ccd4921642700da2754f555083d1dbe13d15f"
+    },
+    {
+      "path": "tests/libslic3r/test_voronoi.cpp",
+      "sha256": "8fbed741156f2b838a898911d367fab3ac42b0218fd6a10aa652d641a0628f3e"
+    },
+    {
+      "path": "tests/libslic3r/test_png_io.cpp",
+      "sha256": "b9b6f292ef225c484556450dcd5a6a7df43cbeb0881ac364f7f1ccc5cba429cf"
+    },
+    {
+      "path": "tests/sla_print/sla_test_utils.hpp",
+      "sha256": "741f150aad69e9ecc4a43de5c8aed1d7bbbdd26053e16043952531da7331f13b"
+    },
+    {
+      "path": "tests/sla_print/sla_test_utils.cpp",
+      "sha256": "31f36127cc9657fc7f03c73459d7955a58855123e123e769014a8274e761a395"
+    },
+    {
+      "path": "tests/sla_print/sla_print_tests.cpp",
+      "sha256": "759e7c7b241a61e60c4b2049e96524e069847dadfbda05ac4fafa2719a538eb4"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "a630bb4a5221a224e5d071a03e647a4cbb9c613cab2db1bdafd2bb7ec9f9d27b"
+    },
+    {
+      "path": "tests/slic3rutils/CMakeLists.txt",
+      "sha256": "13ce7904c67096a98262d4adc0c39b122088513e94ed63b080a251049b414848"
+    },
+    {
+      "path": "tests/fila_manager/CMakeLists.txt",
+      "sha256": "4a09a3be56c39eb18fc39b8869eced5fb466d74a9fc2547c9c079071352d7943"
+    },
+    {
+      "path": "src/libslic3r/SLA/RasterBase.hpp",
+      "sha256": "5b2aca1b3b35a64d682fb107ce5ad47062aba007aed7cb6910b767ccbc54ce20"
+    },
+    {
+      "path": "src/libslic3r/ClipperUtils.hpp",
+      "sha256": "94957fcd04031accc8fcfcf9e5876116a5819b4a7c314a9d8ce60d1bdccde393"
+    },
+    {
+      "path": "src/libslic3r/Geometry/Voronoi.hpp",
+      "sha256": "f25074694ee311aa4d7622264e072460790c53661dd211190979dccb3dd1a9b2"
+    },
+    {
+      "path": "src/libslic3r/Geometry/Voronoi.cpp",
+      "sha256": "1ac612d799be07638e0969ca881a163feaa391a95c707da96c0ac191072082dc"
+    },
+    {
+      "path": "src/libslic3r/PNGReadWrite.hpp",
+      "sha256": "71037df6cb7d58f5c3d0f31ea97b00ce8cbad87bef42761d9d861be76c650f5e"
+    },
+    {
+      "path": "src/libslic3r/CMakeLists.txt",
+      "sha256": "20fd3d7f0efb85c99c9069558eb5e7ed1bf0356ffb2ef2cda9b0a052f59a9404"
+    },
+    {
+      "path": "src/slic3r/CMakeLists.txt",
+      "sha256": "177529cdabfaec59699043314111fd23af38c45d4425a626ed72ab9975d14046"
+    },
+    {
+      "path": "src/CMakeLists.txt",
+      "sha256": "4b628858c585b2a05cc61d21ede6ab09b347bba5d017ce82735185d9f55b8be4"
+    },
+    {
+      "path": "src/slic3r/GUI/BitmapCache.cpp",
+      "sha256": "f5c8245afb7364ea9ee89da7a6d549f7c6c9068b3fa410417b88eabbb55d3764"
+    },
+    {
+      "path": "src/slic3r/Utils/BBLUtil.cpp",
+      "sha256": "b5ac5f386d04c88674904d7bcb455896069a9a365ae540503a0ae14cadbf6ff3"
+    },
+    {
+      "path": "src/slic3r/Utils/Http.cpp",
+      "sha256": "e96312ea3ba34b14dc65d19f4920c9c40ab4573e0792b29a3d47536f5d5be1cd"
+    },
+    {
+      "path": "src/slic3r/GUI/fila_manager/wgtFilaManagerStore.cpp",
+      "sha256": "8c949d95f92fba71c7c107feb77b011087085c1ca8b1d8648a1ecc6d7abc9a5b"
     }
   ],
   "patches": [
-    {"path": "slicer/engine/patches/0006-obj-test-loader.patch", "sha256": "2c8a1dbd3fae41dc2882179a8b40099379440d641ce868ffebf951217d691dae"},
-    {"path": "slicer/engine/patches/0007-fff-test-current-api.patch", "sha256": "c24569e3750cec1c1fcdaab88e1339beb50471c32546b682bad397e9e410013c"},
+    {
+      "path": "slicer/engine/patches/0006-obj-test-loader.patch",
+      "sha256": "2c8a1dbd3fae41dc2882179a8b40099379440d641ce868ffebf951217d691dae"
+    },
+    {
+      "path": "slicer/engine/patches/0007-fff-test-current-api.patch",
+      "sha256": "c24569e3750cec1c1fcdaab88e1339beb50471c32546b682bad397e9e410013c"
+    },
     {
       "path": "slicer/engine/patches/0005-3mf-test-rotation.patch",
       "sha256": "bf2b5bd8292295064a55ecc213f297a4f45e6945140d0d5dbe230b5bba3e712d"
@@ -47,6 +180,14 @@
     {
       "path": "slicer/engine/patches/0004-libnest2d-test-callback.patch",
       "sha256": "41802480395fd6a07a31dab055ef77fe8da3ea807c9d2ef88f2e6cb12fec2eaa"
+    },
+    {
+      "path": "slicer/engine/patches/0008-geometry-raster-test-api.patch",
+      "sha256": "3d1a14adfb344b7d851cc4d024df8dfbaa1920e4f195e5e44c1cc3b870e9a5f7"
+    },
+    {
+      "path": "slicer/engine/patches/0009-linux-test-link-dependencies.patch",
+      "sha256": "fb89c6b27ece6d3fd837d054077f58c8aa3e9d60ff989d8df65a8827a9ab6f4f"
     }
   ],
   "compiled": false,

@@ -1,0 +1,321 @@
+diff --git a/tests/libslic3r/test_marchingsquares.cpp b/tests/libslic3r/test_marchingsquares.cpp
+--- a/tests/libslic3r/test_marchingsquares.cpp
++++ b/tests/libslic3r/test_marchingsquares.cpp
+@@ -20,17 +20,17 @@
+ 
+ using namespace Slic3r;
+ 
+-static double area(const sla::RasterBase::PixelDim &pxd)
++static double area(const sla::PixelDim &pxd)
+ {
+     return pxd.w_mm * pxd.h_mm;
+ }
+ 
+ static Slic3r::sla::RasterGrayscaleAA create_raster(
+-    const sla::RasterBase::Resolution &res,
++    const sla::Resolution &res,
+     double                             disp_w = 100.,
+     double                             disp_h = 100.)
+ {
+-    sla::RasterBase::PixelDim pixdim{disp_w / res.width_px, disp_h / res.height_px};
++    sla::PixelDim pixdim{disp_w / res.width_px, disp_h / res.height_px};
+     
+     auto bb = BoundingBox({0, 0}, {scaled(disp_w), scaled(disp_h)});
+     sla::RasterBase::Trafo trafo;
+@@ -107,7 +107,7 @@
+     svg.Close();
+     
+     double max_rel_err = 0.1;
+-    sla::RasterBase::PixelDim pxd = rst.pixel_dimensions();
++    sla::PixelDim pxd = rst.pixel_dimensions();
+     double max_abs_err = area(pxd) * scaled(1.) * scaled(1.);
+     
+     BoundingBox ref_bb;
+@@ -175,7 +175,7 @@
+ 
+ TEST_CASE("4x4 raster with one ring", "[MarchingSquares]") {
+     
+-    sla::RasterBase::PixelDim pixdim{1, 1};
++    sla::PixelDim pixdim{1, 1};
+     
+     // We need one additional row and column to detect edges
+     sla::RasterGrayscaleAA rst{{4, 4}, pixdim, {}, agg::gamma_threshold(.5)};
+@@ -205,7 +205,7 @@
+ 
+ TEST_CASE("4x4 raster with two rings", "[MarchingSquares]") {
+     
+-    sla::RasterBase::PixelDim pixdim{1, 1};
++    sla::PixelDim pixdim{1, 1};
+     
+     // We need one additional row and column to detect edges
+     sla::RasterGrayscaleAA rst{{5, 5}, pixdim, {}, agg::gamma_threshold(.5)};
+@@ -321,7 +321,7 @@
+     
+     std::vector<ExPolygons> layers = slice_mesh_ex(mesh.its, grid(float(bb.min.z()) + lh, float(bb.max.z()), lh));
+     
+-    sla::RasterBase::Resolution res{2560, 1440};
++    sla::Resolution res{2560, 1440};
+     double                      disp_w = 120.96;
+     double                      disp_h = 68.04;
+ 
+diff --git a/tests/libslic3r/test_png_io.cpp b/tests/libslic3r/test_png_io.cpp
+--- a/tests/libslic3r/test_png_io.cpp
++++ b/tests/libslic3r/test_png_io.cpp
+@@ -9,9 +9,9 @@
+ 
+ using namespace Slic3r;
+ 
+-static sla::RasterGrayscaleAA create_raster(const sla::RasterBase::Resolution &res)
++static sla::RasterGrayscaleAA create_raster(const sla::Resolution &res)
+ {
+-    sla::RasterBase::PixelDim pixdim{1., 1.};
++    sla::PixelDim pixdim{1., 1.};
+ 
+     auto bb = BoundingBox({0, 0}, {scaled(1.), scaled(1.)});
+     sla::RasterBase::Trafo trafo;
+diff --git a/tests/sla_print/sla_test_utils.hpp b/tests/sla_print/sla_test_utils.hpp
+--- a/tests/sla_print/sla_test_utils.hpp
++++ b/tests/sla_print/sla_test_utils.hpp
+@@ -175,7 +175,7 @@
+ 
+ ExPolygon square_with_hole(double v);
+ 
+-inline double pixel_area(TPixel px, const sla::RasterBase::PixelDim &pxdim)
++inline double pixel_area(TPixel px, const sla::PixelDim &pxdim)
+ {
+     return (pxdim.h_mm * pxdim.w_mm) * px * 1. / (FullWhite - FullBlack);
+ }
+@@ -183,7 +183,7 @@
+ double raster_white_area(const sla::RasterGrayscaleAA &raster);
+ long raster_pxsum(const sla::RasterGrayscaleAA &raster);
+ 
+-double predict_error(const ExPolygon &p, const sla::RasterBase::PixelDim &pd);
++double predict_error(const ExPolygon &p, const sla::PixelDim &pd);
+ 
+ sla::SupportPoints calc_support_pts(
+     const TriangleMesh &                      mesh,
+diff --git a/tests/sla_print/sla_test_utils.cpp b/tests/sla_print/sla_test_utils.cpp
+--- a/tests/sla_print/sla_test_utils.cpp
++++ b/tests/sla_print/sla_test_utils.cpp
+@@ -307,8 +307,8 @@
+ void check_raster_transformations(sla::RasterBase::Orientation o, sla::RasterBase::TMirroring mirroring)
+ {
+     double disp_w = 120., disp_h = 68.;
+-    sla::RasterBase::Resolution res{2560, 1440};
+-    sla::RasterBase::PixelDim pixdim{disp_w / res.width_px, disp_h / res.height_px};
++    sla::Resolution res{2560, 1440};
++    sla::PixelDim pixdim{disp_w / res.width_px, disp_h / res.height_px};
+     
+     auto bb = BoundingBox({0, 0}, {scaled(disp_w), scaled(disp_h)});
+     sla::RasterBase::Trafo trafo{o, mirroring};
+@@ -400,7 +400,7 @@
+     return a;
+ }
+ 
+-double predict_error(const ExPolygon &p, const sla::RasterBase::PixelDim &pd)
++double predict_error(const ExPolygon &p, const sla::PixelDim &pd)
+ {
+     auto lines = p.lines();
+     double pix_err = pixel_area(FullWhite, pd)  / 2.;
+diff --git a/tests/sla_print/sla_print_tests.cpp b/tests/sla_print/sla_print_tests.cpp
+--- a/tests/sla_print/sla_print_tests.cpp
++++ b/tests/sla_print/sla_print_tests.cpp
+@@ -159,8 +159,8 @@
+ 
+ TEST_CASE("InitializedRasterShouldBeNONEmpty", "[SLARasterOutput]") {
+     // Default SL1 display parameters
+-    sla::RasterBase::Resolution res{2560, 1440};
+-    sla::RasterBase::PixelDim   pixdim{120. / res.width_px, 68. / res.height_px};
++    sla::Resolution res{2560, 1440};
++    sla::PixelDim   pixdim{120. / res.width_px, 68. / res.height_px};
+     
+     sla::RasterGrayscaleAAGammaPower raster(res, pixdim, {}, 1.);
+     REQUIRE(raster.resolution().width_px == res.width_px);
+@@ -186,8 +186,8 @@
+ 
+ TEST_CASE("RasterizedPolygonAreaShouldMatch", "[SLARasterOutput]") {
+     double disp_w = 120., disp_h = 68.;
+-    sla::RasterBase::Resolution res{2560, 1440};
+-    sla::RasterBase::PixelDim pixdim{disp_w / res.width_px, disp_h / res.height_px};
++    sla::Resolution res{2560, 1440};
++    sla::PixelDim pixdim{disp_w / res.width_px, disp_h / res.height_px};
+     
+     double gamma = 1.;
+     sla::RasterGrayscaleAAGammaPower raster(res, pixdim, {}, gamma);
+diff --git a/tests/libslic3r/test_voronoi.cpp b/tests/libslic3r/test_voronoi.cpp
+--- a/tests/libslic3r/test_voronoi.cpp
++++ b/tests/libslic3r/test_voronoi.cpp
+@@ -61,7 +61,7 @@
+ 
+     // Construction of the Voronoi Diagram.
+     VD vd;
+-    construct_voronoi(pts.begin(), pts.end(), &vd);
++    vd.construct_voronoi(pts.begin(), pts.end());
+ 
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-pts.svg").c_str(),
+@@ -189,7 +189,7 @@
+ 
+     Lines lines = to_lines(poly);
+     VD vd;
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-lines.svg").c_str(),
+@@ -297,7 +297,7 @@
+ 
+     VD vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-weirdness.svg").c_str(),
+@@ -321,7 +321,7 @@
+     }
+ 
+     VD vd;
+-    construct_voronoi(pts.begin(), pts.end(), &vd);
++    vd.construct_voronoi(pts.begin(), pts.end());
+ 
+ #ifdef VORONOI_DEBUG_OUT
+     // Scale the voronoi vertices and input points, so that the dump_voronoi_to_svg will display them correctly.
+@@ -1318,7 +1318,7 @@
+ #endif
+ 
+     VD vd;
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+     for (const auto& edge : vd.edges())
+         if (edge.is_finite()) {
+@@ -1359,7 +1359,7 @@
+ 
+   VD vd;
+   Lines lines = to_lines(poly_with_hole);
+-  construct_voronoi(lines.begin(), lines.end(), &vd);
++  vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+   for (const OffsetTest &ot : {
+             OffsetTest { scale_(0.2), 1, 1 },
+@@ -1425,7 +1425,7 @@
+ 
+   VD vd;
+   Lines lines = to_lines(poly);
+-  construct_voronoi(lines.begin(), lines.end(), &vd);
++  vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+   for (const OffsetTest &ot : {
+             OffsetTest { scale_(0.2), 2, 2 },
+@@ -1495,7 +1495,7 @@
+ 
+   VD vd;
+   Lines lines = to_lines(poly);
+-  construct_voronoi(lines.begin(), lines.end(), &vd);  
++  vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+   for (const OffsetTest &ot : {
+             OffsetTest { scale_(0.2), 2, 2 },
+@@ -1746,7 +1746,7 @@
+ 
+   VD vd;
+   Lines lines = to_lines(poly);
+-  construct_voronoi(lines.begin(), lines.end(), &vd);
++  vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+   for (const OffsetTest &ot : {
+             OffsetTest { scale_(0.2), 2, 2 },
+@@ -1857,7 +1857,7 @@
+ 
+     VD vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ 
+     for (const OffsetTest &ot : {
+             OffsetTest { scale_(2.8), 1, 1 },
+@@ -1915,7 +1915,7 @@
+ 
+     VD vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+     Slic3r::Voronoi::annotate_inside_outside(vd, lines);
+     Slic3r::Voronoi::annotate_inside_outside(vd, lines);
+     static constexpr double threshold_alpha = M_PI / 12.; // 30 degrees
+@@ -1966,7 +1966,7 @@
+ 
+     VD    vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-missing-vertex1-out.svg").c_str(), vd, Points(), lines);
+ #endif
+@@ -2006,7 +2006,7 @@
+ 
+     VD    vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-missing-vertex2-out.svg").c_str(), vd, Points(), lines);
+ #endif
+@@ -2047,7 +2047,7 @@
+ 
+     VD vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-missing-vertex3-out.svg").c_str(), vd, Points(), lines);
+ #endif
+@@ -2080,7 +2080,7 @@
+ 
+     VD    vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-duplicate-vertices-out.svg").c_str(), vd, Points(), lines);
+ #endif
+@@ -2120,7 +2120,7 @@
+ 
+     VD    vd;
+     Lines lines = to_lines(poly);
+-    construct_voronoi(lines.begin(), lines.end(), &vd);
++    vd.construct_voronoi(lines.begin(), lines.end(), false);
+ #ifdef VORONOI_DEBUG_OUT
+     dump_voronoi_to_svg(debug_out_path("voronoi-intersecting-edges-out.svg").c_str(), vd, Points(), lines);
+ #endif
+diff --git a/tests/libslic3r/test_clipper_utils.cpp b/tests/libslic3r/test_clipper_utils.cpp
+--- a/tests/libslic3r/test_clipper_utils.cpp
++++ b/tests/libslic3r/test_clipper_utils.cpp
+@@ -66,7 +66,7 @@
+     GIVEN("polyline") {
+         Polyline polyline { { 50, 150 }, { 300, 150 } };
+         WHEN("intersection_pl") {
+-            Polylines result = Slic3r::intersection_pl({ polyline }, { square, hole_in_square });
++            Polylines result = Slic3r::intersection_pl(Polylines{ polyline }, Polygons{ square, hole_in_square });
+             THEN("correct number of result lines") {
+                 REQUIRE(result.size() == 2);
+             }
+@@ -99,7 +99,7 @@
+ 			{ 74730000, 74730000 }, { 55270000, 74730000 }, { 55270000, 68063296 }, { 44730000, 68063296 }, { 44730000, 74730000 }, { 25270000, 74730000 }, { 25270000, 55270000 }, { 31936670, 55270000 },
+ 			{ 31936670, 44730000 }, { 25270000, 44730000 }, { 25270000, 25270000 }, { 44730000, 25270000 }, { 44730000, 31936670 } };
+ 		Slic3r::Polygon clip { {75200000, 45200000}, {54800000, 45200000}, {54800000, 24800000}, {75200000, 24800000} };
+-        Slic3r::Polylines result = Slic3r::intersection_pl(subject, { clip });
++        Slic3r::Polylines result = Slic3r::intersection_pl(subject, Polygons{ clip });
+ 		THEN("intersection_pl - result is not empty") {
+ 			REQUIRE(result.size() == 1);
+ 		}
+@@ -117,7 +117,7 @@
+ 	GIVEN("Clipper bug #126") {
+ 		Slic3r::Polyline subject { { 200000, 19799999 }, { 200000, 200000 }, { 24304692, 200000 }, { 15102879, 17506106 }, { 13883200, 19799999 }, { 200000, 19799999 } };
+ 		Slic3r::Polygon clip { { 15257205, 18493894 }, { 14350057, 20200000 }, { -200000, 20200000 }, { -200000, -200000 }, { 25196917, -200000 } };
+-		Slic3r::Polylines result = Slic3r::intersection_pl(subject, { clip });
++		Slic3r::Polylines result = Slic3r::intersection_pl(subject, Polygons{ clip });
+ 		THEN("intersection_pl - result is not empty") {
+ 			REQUIRE(result.size() == 1);
+ 		}

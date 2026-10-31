@@ -2,8 +2,8 @@
   "compiled": false,
   "files": {
     "docs/slicer/b2-build-fixes.json": {
-      "bytes": 4514,
-      "sha256": "f50036820a7901f2c277dbc1d730d04bcc4749d4569c30d87924af6b6beb9095"
+      "bytes": 8867,
+      "sha256": "0854f79ee582cf26e744c05d676768b0b0db4356fd00b780ae0c163e1ea097fa"
     },
     "docs/slicer/b2-build-source-index.json": {
       "bytes": 1834,
@@ -22,12 +22,12 @@
       "sha256": "c075ce1d9611d2e1b0c17c83ac4f1576c124b73c9186e23dd6d7c58405fc1a66"
     },
     "slicer/builder/PUBLIC-README.md": {
-      "bytes": 4494,
-      "sha256": "4ef605aa50ee4b48db4c0c050e8a863deefff871611b46c12228a04dc49b5284"
+      "bytes": 4932,
+      "sha256": "d6bdb73f9138f9695161fed1c0358e3dac992d316c3219e8ee45372c46c5f705"
     },
     "slicer/builder/README.md": {
-      "bytes": 11202,
-      "sha256": "de594c4d63c5e77e3ee696af2739e9e995b806f3bf8f040ab65b7fdd204e7f7e"
+      "bytes": 13053,
+      "sha256": "055dd07ad66c3b40a3d5f519ca9b64e0d6e2c2387899f4123a9e03f0eb9e3dcb"
     },
     "slicer/builder/build-candidate.workflow.yml": {
       "bytes": 5430,
@@ -38,8 +38,8 @@
       "sha256": "bfc57aba9eb968a8163d95ffa4c072685754476004a2ab0d03b76cf94608d4ea"
     },
     "slicer/builder/package.py": {
-      "bytes": 2845,
-      "sha256": "65e690029bd3f696edf7f9d205a86c752af7d02a781a3cdc17c3354fc30ab304"
+      "bytes": 2979,
+      "sha256": "e28286ecc4bc0e4a2258c77238716b8aac79f2b4c722b5fe1ad079157908bd60"
     },
     "slicer/engine/LICENSE.BambuStudio.txt": {
       "bytes": 34520,
@@ -77,9 +77,17 @@
       "bytes": 5272,
       "sha256": "c24569e3750cec1c1fcdaab88e1339beb50471c32546b682bad397e9e410013c"
     },
+    "slicer/engine/patches/0008-geometry-raster-test-api.patch": {
+      "bytes": 12565,
+      "sha256": "3d1a14adfb344b7d851cc4d024df8dfbaa1920e4f195e5e44c1cc3b870e9a5f7"
+    },
+    "slicer/engine/patches/0009-linux-test-link-dependencies.patch": {
+      "bytes": 1613,
+      "sha256": "fb89c6b27ece6d3fd837d054077f58c8aa3e9d60ff989d8df65a8827a9ab6f4f"
+    },
     "slicer/tests/test_builder.py": {
-      "bytes": 8924,
-      "sha256": "981f08fb9f9d5724ccc3a856df06ea7b46e04a716d65f68df07dc823bb9226f5"
+      "bytes": 10197,
+      "sha256": "a3cbf188864379b65661da9c7287e93d2b1ac8e3ac5a4350aeea29a01e673639"
     }
   },
   "format": 1,

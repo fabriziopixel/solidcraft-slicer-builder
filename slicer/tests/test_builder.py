@@ -143,6 +143,24 @@ class BuilderTests(unittest.TestCase):
 
 
 class KitTests(unittest.TestCase):
+    def test_geometry_patch_preserves_assertions_and_disables_new_voronoi_repair(self):
+        text = (driver.ROOT / "slicer/engine/patches/0008-geometry-raster-test-api.patch").read_text()
+        removed = [line[1:] for line in text.splitlines() if line.startswith("-") and not line.startswith("---")]
+        added = [line[1:] for line in text.splitlines() if line.startswith("+") and not line.startswith("+++")]
+        for line in removed + added:
+            self.assertNotIn("REQUIRE(", line)
+            self.assertNotIn("TEST_CASE(", line)
+        self.assertEqual(sum("vd.construct_voronoi(lines.begin(), lines.end(), false)" in line for line in added), 14)
+        self.assertEqual(sum("vd.construct_voronoi(pts.begin(), pts.end())" in line for line in added), 2)
+
+    def test_linux_link_patch_keeps_all_suites_and_uses_real_libraries(self):
+        text = (driver.ROOT / "slicer/engine/patches/0009-linux-test-link-dependencies.patch").read_text()
+        self.assertIn('"$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r>"', text)
+        self.assertIn('include(${wxWidgets_USE_FILE})', text)
+        self.assertNotIn("\n-add_subdirectory", text)
+        self.assertNotIn("\n-add_test", text)
+        self.assertIn('if(CMAKE_SYSTEM_NAME STREQUAL "Linux")', text)
+
     def test_allowlist_only_and_deterministic(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

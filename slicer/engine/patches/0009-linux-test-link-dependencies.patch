@@ -1,0 +1,28 @@
+diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
+--- a/tests/CMakeLists.txt
++++ b/tests/CMakeLists.txt
+@@ -27,6 +27,24 @@
+ 
+ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+ 
++# Linux diagnostic builder: these tests now reach GUI utility implementations
++# through LogSink, NSVGUtils and the filament store. Use the real upstream
++# implementations, not stubs. wx setup in src/ is directory-scoped, so import
++# it here as well for tests that directly include GUI headers.
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++    get_directory_property(wxWidgets_INCLUDE_DIRS DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_INCLUDE_DIRS)
++    get_directory_property(wxWidgets_DEFINITIONS DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_DEFINITIONS)
++    get_directory_property(wxWidgets_DEFINITIONS_DEBUG DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_DEFINITIONS_DEBUG)
++    get_directory_property(wxWidgets_CXX_FLAGS DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_CXX_FLAGS)
++    get_directory_property(wxWidgets_USE_FILE DIRECTORY "${PROJECT_SOURCE_DIR}/src" DEFINITION wxWidgets_USE_FILE)
++    include(${wxWidgets_USE_FILE})
++    # libslic3r references Http/BBLUtil/NanoSVG in libslic3r_gui, which itself
++    # references libslic3r. Rescan the static archives to resolve this cycle.
++    # GUI's transitive links also supply OpenSSL, curl, wx and rendering libs.
++    target_link_libraries(test_common INTERFACE
++        "$<LINK_GROUP:RESCAN,libslic3r_gui,libslic3r>")
++endif()
++
+ add_subdirectory(libnest2d)
+ add_subdirectory(libslic3r)
+ add_subdirectory(slic3rutils)
