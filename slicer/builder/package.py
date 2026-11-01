@@ -25,6 +25,7 @@ FILES = (
     "slicer/engine/patches/0007-fff-test-current-api.patch",
     "slicer/engine/patches/0008-geometry-raster-test-api.patch",
     "slicer/engine/patches/0009-linux-test-link-dependencies.patch",
+    "slicer/engine/patches/0010-fila-manager-test-boost-format.patch",
     "docs/slicer/b2-build-fixes.json",
     "slicer/engine/experiments/0003-x11-glx-rendering.patch",
     "slicer/engine/LICENSE.BambuStudio.txt",

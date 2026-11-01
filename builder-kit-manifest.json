@@ -2,8 +2,8 @@
   "compiled": false,
   "files": {
     "docs/slicer/b2-build-fixes.json": {
-      "bytes": 9832,
-      "sha256": "f708f0c675d6ff75a744fd388dda71d48659bcb116708b0d3c6ab4a1c460d62e"
+      "bytes": 10675,
+      "sha256": "57b5ab6db3587c522df8db5f6f5cd8ceab2b18afddbe07c267de23b65f372591"
     },
     "docs/slicer/b2-build-source-index.json": {
       "bytes": 1834,
@@ -22,12 +22,12 @@
       "sha256": "c075ce1d9611d2e1b0c17c83ac4f1576c124b73c9186e23dd6d7c58405fc1a66"
     },
     "slicer/builder/PUBLIC-README.md": {
-      "bytes": 5708,
-      "sha256": "95d91dba879ba1f597bd7950224f91d6bd92f9d28559b8e22cc4a75391621c2f"
+      "bytes": 6117,
+      "sha256": "77cd6e51d678b32eb3080d1aaee66e674700ba1a18f70365f330d8a812fa8c1c"
     },
     "slicer/builder/README.md": {
-      "bytes": 13937,
-      "sha256": "ebcb54436203ab65842a00af858df7a796b9488ab5270793897071a4e3c63547"
+      "bytes": 14603,
+      "sha256": "7ef72e1fa2c4aef015b4d1514be6325c4aba35a7a87582cc2bf6801f787ab55b"
     },
     "slicer/builder/build-candidate.workflow.yml": {
       "bytes": 5661,
@@ -38,8 +38,8 @@
       "sha256": "bfc57aba9eb968a8163d95ffa4c072685754476004a2ab0d03b76cf94608d4ea"
     },
     "slicer/builder/package.py": {
-      "bytes": 3021,
-      "sha256": "0d196c9fe2639e53e8232c64ab3be8b617389d6ffdb2901e21ab5b76a825cc97"
+      "bytes": 3092,
+      "sha256": "ac5b8c2e900024d04a749bbfff99f625adf58d5754036f2016c9b175561a6000"
     },
     "slicer/engine/LICENSE.BambuStudio.txt": {
       "bytes": 34520,
@@ -85,9 +85,13 @@
       "bytes": 1837,
       "sha256": "7ca36c42f1c66778181b156ec534cb83bf8587e3083289b6b6a65ff8d8c2480c"
     },
+    "slicer/engine/patches/0010-fila-manager-test-boost-format.patch": {
+      "bytes": 509,
+      "sha256": "7c168ad7c93f5d253e863167b5bdad4f4a24828943186e3bb178664411839fa4"
+    },
     "slicer/tests/test_builder.py": {
-      "bytes": 10398,
-      "sha256": "4607e5baa51a2d04742ab9ac27d4a89a90a2de70a0df6edf6abdebd506e4f6a0"
+      "bytes": 11133,
+      "sha256": "da4c26b284e30cb55b2e472e5eddb1d5ec176ccd548b736ca620e1467e90c59e"
     },
     "slicer/tests/test_cmake_linkage.py": {
       "bytes": 5424,

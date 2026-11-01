@@ -1,8 +1,16 @@
 {
   "revision": "926a7192574bcb9b3a732e1ec59a46d79cb45466",
-  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. CI run 41127129442 then failed on load_obj in the shared test helper. Broader static review also found stale writer lift/extruder calls, retract_lift and first_layer_height fields, and global brim access in active FFF tests. Adapt these to the reviewed current APIs. Numeric expectations and tolerances are unchanged; brim assertion expressions sum the current per-object map. Compilation and runtime semantics still require C++/CTest validation. Run 41176485962 collected further stale raster type names, ambiguous polygon overloads, removed free Voronoi construction calls, missing wx compile usage and static GUI/core linkage dependencies. Patches 0008/0009 retain all assertions and test targets. Segment Voronoi construction disables the new automatic repair to retain the old direct Boost construction semantics. Linux tests link the real GUI/core archive group and use the same wx setup as src; no mocks or networking execution are added. Runs 41185587433 and 41200655878 failed during CMake generation because libnest2d was outside that group despite its reciprocal link with libslic3r. Patch 0009 now groups GUI, core and libnest2d together. A synthetic CMake regression reproduces the old cycle and configures, links and runs eight tiny test executables with the corrected group before the expensive CI build. This does not validate the engine. Run 41206486085 then failed compiling two test objects because wx/string.h was missing: wxWidgets_FOUND was not imported from the sibling src directory, so the real UsewxWidgets module silently skipped compile setup. Patch 0009 now imports and requires that flag. The regression now uses CMake's real UsewxWidgets module, reproduces the missing-flag failure and builds/runs eight fixed fixture executables. Engine C++ build/CTest remains unverified.",
+  "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. CI run 41127129442 then failed on load_obj in the shared test helper. Broader static review also found stale writer lift/extruder calls, retract_lift and first_layer_height fields, and global brim access in active FFF tests. Adapt these to the reviewed current APIs. Numeric expectations and tolerances are unchanged; brim assertion expressions sum the current per-object map. Compilation and runtime semantics still require C++/CTest validation. Run 41176485962 collected further stale raster type names, ambiguous polygon overloads, removed free Voronoi construction calls, missing wx compile usage and static GUI/core linkage dependencies. Patches 0008/0009 retain all assertions and test targets. Segment Voronoi construction disables the new automatic repair to retain the old direct Boost construction semantics. Linux tests link the real GUI/core archive group and use the same wx setup as src; no mocks or networking execution are added. Runs 41185587433 and 41200655878 failed during CMake generation because libnest2d was outside that group despite its reciprocal link with libslic3r. Patch 0009 now groups GUI, core and libnest2d together. A synthetic CMake regression reproduces the old cycle and configures, links and runs eight tiny test executables with the corrected group before the expensive CI build. This does not validate the engine. Run 41206486085 then failed compiling two test objects because wx/string.h was missing: wxWidgets_FOUND was not imported from the sibling src directory, so the real UsewxWidgets module silently skipped compile setup. Patch 0009 now imports and requires that flag. The regression now uses CMake's real UsewxWidgets module, reproduces the missing-flag failure and builds/runs eight fixed fixture executables. Engine C++ build/CTest remains unverified. Run 41234235376 linked bambu-studio and eight test executables, but fila_manager_tests failed because DevUtil.h uses boost::format without including its declaration. Test-only patch 0010 includes boost/format.hpp before the GUI helper, retaining the wx-enabled branch, all assertions and test targets. Full compilation and CTest still require a new CI run.",
   "source_base_url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/",
   "sources": [
+    {
+      "path": "tests/fila_manager/fila_manager_tests_main.cpp",
+      "sha256": "bff8369372a3a3c094108bf687a9864b0415ac57b49857815c601d26b4a8aaf7"
+    },
+    {
+      "path": "src/slic3r/GUI/DeviceCore/DevUtil.h",
+      "sha256": "dc336dfcd4113237697b25b207fbfafc3947490d9b42b84d790a8a885de10264"
+    },
     {
       "path": "src/libnest2d/CMakeLists.txt",
       "sha256": "388ca344d2752b298e9b9711e182cf49bf82af1ba953e772cec251f5c9d661d6"
@@ -169,6 +177,10 @@
     }
   ],
   "patches": [
+    {
+      "path": "slicer/engine/patches/0010-fila-manager-test-boost-format.patch",
+      "sha256": "7c168ad7c93f5d253e863167b5bdad4f4a24828943186e3bb178664411839fa4"
+    },
     {
       "path": "slicer/engine/patches/0006-obj-test-loader.patch",
       "sha256": "2c8a1dbd3fae41dc2882179a8b40099379440d641ce868ffebf951217d691dae"

@@ -1,0 +1,11 @@
+diff --git a/tests/fila_manager/fila_manager_tests_main.cpp b/tests/fila_manager/fila_manager_tests_main.cpp
+--- a/tests/fila_manager/fila_manager_tests_main.cpp
++++ b/tests/fila_manager/fila_manager_tests_main.cpp
+@@ -259,6 +259,7 @@
+ 
+ #if defined(__has_include) && __has_include(<wx/colour.h>)
+ #  define BBL_TEST_HAS_WX 1
++#  include <boost/format.hpp> // DevUtil.h uses boost::format via the GUI helper.
+ #  include "slic3r/GUI/fila_manager/wgtFilaManagerColorType.h"
+ #else
+ #  define BBL_TEST_HAS_WX 0

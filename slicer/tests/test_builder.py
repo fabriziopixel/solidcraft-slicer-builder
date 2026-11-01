@@ -143,6 +143,15 @@ class BuilderTests(unittest.TestCase):
 
 
 class KitTests(unittest.TestCase):
+    def test_fila_manager_format_patch_only_adds_required_include(self):
+        text = (driver.ROOT / "slicer/engine/patches/0010-fila-manager-test-boost-format.patch").read_text()
+        removed = [line for line in text.splitlines() if line.startswith("-") and not line.startswith("---")]
+        added = [line[1:] for line in text.splitlines() if line.startswith("+") and not line.startswith("+++")]
+        self.assertEqual(removed, [])
+        self.assertEqual(added, ['#  include <boost/format.hpp> // DevUtil.h uses boost::format via the GUI helper.'])
+        self.assertLess(text.index('+#  include <boost/format.hpp>'),
+                        text.index(' #  include "slic3r/GUI/fila_manager/wgtFilaManagerColorType.h"'))
+
     def test_geometry_patch_preserves_assertions_and_disables_new_voronoi_repair(self):
         text = (driver.ROOT / "slicer/engine/patches/0008-geometry-raster-test-api.patch").read_text()
         removed = [line[1:] for line in text.splitlines() if line.startswith("-") and not line.startswith("---")]
