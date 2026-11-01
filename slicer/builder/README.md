@@ -4,7 +4,9 @@ This kit prepares **candidate source builds**, not print-ready output. It contai
 
 ## Incremental builds on GitHub-hosted runners
 
-Latest observed run `41279128051`: compilation completed; CTest failed six suites, with assertions and segmentation faults. No runtime-equivalence or print-readiness claim follows from compilation.
+Latest checked run `41310393746` also compiled and failed six suites. The workflow now collects bounded GDB backtraces for suites with observed fatal signals, without changing the original CTest result. See `docs/slicer/B2-RUNTIME-DIAGNOSIS.md` in the public repository. This is diagnosis, not a runtime fix; no tests or assertions are disabled.
+
+Earlier run `41279128051`: compilation completed; CTest failed six suites, with assertions and segmentation faults. No runtime-equivalence or print-readiness claim follows from compilation.
 
 The workflow now defaults to `metadata`. It installs `ccache`, restores exact-identity completed dependencies and the latest compatible 2 GiB compiler cache, and saves caches even when subsequent application compilation/CTest fails. The workflow copy in this directory must match `.github/workflows/build-candidate.yml`.
 

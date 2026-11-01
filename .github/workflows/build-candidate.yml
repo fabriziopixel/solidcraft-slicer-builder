@@ -59,7 +59,9 @@ jobs:
           PY
 
       - name: Test source-only kit
-        run: python3 -m unittest discover -s slicer/tests -p test_builder.py -v
+        run: |
+          python3 -m unittest discover -s slicer/tests -p test_builder.py -v
+          python3 -m unittest discover -s slicer/tests -p test_diagnose.py -v
 
       - name: Fetch the exact public Bambu source revision
         shell: bash
@@ -126,6 +128,7 @@ jobs:
             ${{ steps.cache-id.outputs.key }}-ccache-
 
       - name: Compile candidate and run CTest (no release or printer connection)
+        id: candidate-build
         shell: bash
         run: |
           set -euo pipefail
@@ -138,6 +141,25 @@ jobs:
           python3 -m slicer.builder.driver --source "$CI_SOURCE" --output "$CI_OUTPUT" \
             --confirm-isolated-builder --jobs 2 --ccache \
             --dependency-cache "$CI_ROOT/dependency-cache" "${extra[@]}"
+
+      - name: Collect bounded crash backtraces after failed CTest
+        if: ${{ failure() && steps.candidate-build.outcome == 'failure' }}
+        timeout-minutes: 18
+        shell: bash
+        run: |
+          # Installed only after the build: does not alter the dependency cache identity.
+          command -v gdb || sudo apt-get install -y --no-install-recommends gdb
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from slicer.builder.diagnose import diagnose
+          output = Path(os.environ['CI_OUTPUT'])
+          report = output / 'build-report.json'
+          if report.is_file() and json.loads(report.read_text()).get('compiled'):
+              diagnose(output, confirmed=True)
+          else:
+              print('No compiled candidate: no crash rerun')
+          PY
 
       # Cache saves intentionally run on compile/CTest failure too. Never cache a
       # partial dependency install, entire home directory, credentials or CAD data.
@@ -190,6 +212,8 @@ jobs:
             ${{ env.CI_OUTPUT }}/build/CMakeCache.txt
             ${{ env.CI_OUTPUT }}/deps-build/CMakeCache.txt
             ${{ env.CI_OUTPUT }}/build/Testing/Temporary/*.log
+            ${{ env.CI_OUTPUT }}/crash-diagnostics/*.log
+            ${{ env.CI_OUTPUT }}/crash-diagnostics/summary.json
 
       - name: Record gate status
         if: always()
