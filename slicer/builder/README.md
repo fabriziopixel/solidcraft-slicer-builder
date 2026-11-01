@@ -1,6 +1,16 @@
-# B2 external-builder kit (experimental, not yet built)
+# B2 external-builder kit (experimental, compiled but CTest failing)
 
 This kit prepares **candidate source builds**, not print-ready output. It contains no CAD application, private model, DB dump, credentials, AppImage, networking plugin or production runtime image. Nothing publishes to production or changes the existing engine lock.
+
+## Incremental builds on GitHub-hosted runners
+
+Latest observed run `41279128051`: compilation completed; CTest failed six suites, with assertions and segmentation faults. No runtime-equivalence or print-readiness claim follows from compilation.
+
+The workflow now defaults to `metadata`. It installs `ccache`, restores exact-identity completed dependencies and the latest compatible 2 GiB compiler cache, and saves caches even when subsequent application compilation/CTest fails. The workflow copy in this directory must match `.github/workflows/build-candidate.yml`.
+
+Optional driver flags: `--dependency-cache /builder/dependency-cache --ccache`. The cache must be outside the new output directory. Dependency reuse skips only the dependency configure/build steps: application configuration/build and all CTest suites remain mandatory. Identity includes the upstream dependency tree, renderer manifest, dependency commands, compiler/CMake versions and installed OS packages. A mismatched or incomplete cache fails closed. Only a completed nonempty install prefix is published atomically; no partially built dependency tree or candidate binary is cached there. The original no-overwrite output and production-host guards are unchanged.
+
+This is cache reuse, not arbitrary build-directory resume. First runs/cache misses remain slow, package updates can invalidate caches, and linking/tests still execute. Internal public-repository Actions caches contain compiled public dependencies/objects; they must never contain credentials, private code or CAD data. Artifact uploads are still diagnostics only, with no full candidate executable.
 
 ## Build status and CI
 
@@ -43,7 +53,7 @@ Patch `0009` imports the same directory-scoped wx compile settings used by `src/
 
 ## Missing Boost format declaration after run 41234235376
 
-Run `41234235376` passed the CMake/wx regression and linked `bambu-studio` plus eight test executables, but compilation of `fila_manager_tests_main.cpp` failed: the wx-enabled GUI helper reaches `DevUtil.h`, which uses `boost::format` without including its declaration. Test-only patch `0010` explicitly includes `<boost/format.hpp>` before that helper. The original test source and utility header hashes are pinned in the build-fix manifest. No runtime source, assertions, test selection or wx-enabled branch is changed. Local source/patch checks do not prove a complete C++ build; CTest has not yet run.
+Run `41234235376` passed the CMake/wx regression and linked `bambu-studio` plus eight test executables, but compilation of `fila_manager_tests_main.cpp` failed: the wx-enabled GUI helper reaches `DevUtil.h`, which uses `boost::format` without including its declaration. Test-only patch `0010` explicitly includes `<boost/format.hpp>` before that helper. The original test source and utility header hashes are pinned in the build-fix manifest. No runtime source, assertions, test selection or wx-enabled branch is changed. Local source/patch checks alone do not prove a complete C++ build. Subsequent run `41279128051` compiled but failed CTest; see the latest status above.
 
 ## Fetch public upstream sources on the builder
 

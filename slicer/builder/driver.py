@@ -43,7 +43,7 @@ def preflight(source, output, confirmed, available=None):
     return {"available_ram_bytes": ram, "free_disk_bytes": disk}
 
 
-def plan(source, jobs=1):
+def plan(source, jobs=1, ccache=False):
     """No execution or resource allocation: paths relative to a new output directory."""
     return [
         ["git", "clone", "--no-hardlinks", "--no-checkout", str(source), "source"],
@@ -54,7 +54,8 @@ def plan(source, jobs=1):
         ["cmake", "-S", "source", "-B", "build", "-G", "Ninja",
          "-DCMAKE_PREFIX_PATH={OUTPUT}/deps-build/destdir/usr/local", "-DSLIC3R_STATIC=1",
          "-DSLIC3R_GTK=3", "-DCMAKE_BUILD_TYPE=Release", "-DBBL_RELEASE_TO_PUBLIC=1",
-         "-DBBL_INTERNAL_TESTING=0", "-DSLIC3R_BUILD_TESTS=ON"],
+         "-DBBL_INTERNAL_TESTING=0", "-DSLIC3R_BUILD_TESTS=ON",
+         *(["-DCMAKE_C_COMPILER_LAUNCHER=ccache", "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"] if ccache else [])],
         # Collect all independently reachable compile failures in one attempt.
         # Ninja still exits nonzero on any failure; CTest is never skipped on success.
         ["cmake", "--build", "build", "--parallel", str(jobs), "--", "-k", "0"],
@@ -79,10 +80,55 @@ def save(path, value):
     temp.replace(path)
 
 
-def build(source, output, confirmed, render_experiment=False, jobs=1):
+def dependency_identity(checkout, render_experiment):
+    """Strict identity: dependency tree, variant, toolchain, OS packages and recipe."""
+    def capture(argv):
+        return subprocess.check_output(argv, cwd=checkout, text=True).strip()
+    return {
+        "schema": 1,
+        "deps_tree": capture(["git", "rev-parse", "HEAD:deps"]),
+        "render_patch": hashlib.sha256((ROOT / "docs/slicer/b2-render-experiment.json").read_bytes()).hexdigest()
+                        if render_experiment else None,
+        "recipe": plan(checkout)[2:4],
+        "compiler": capture(["c++", "--version"]),
+        "cmake": capture(["cmake", "--version"]),
+        "packages": hashlib.sha256(capture(["dpkg-query", "-W", "-f=${Package}=${Version}\\n"]).encode()).hexdigest(),
+    }
+
+
+def restore_dependencies(cache, destination, identity):
+    if not (cache / "identity.json").is_file():
+        return False
+    if json.loads((cache / "identity.json").read_text()) != identity:
+        raise ValueError("dependency cache identity mismatch; use a fresh cache")
+    if not (cache / "prefix").is_dir():
+        raise ValueError("incomplete dependency cache")
+    shutil.copytree(cache / "prefix", destination, symlinks=True)
+    return True
+
+
+def store_dependencies(cache, prefix, identity):
+    if cache.exists():
+        raise ValueError("refusing to overwrite dependency cache")
+    if not prefix.is_dir() or not any(prefix.iterdir()):
+        raise ValueError("dependency install prefix missing or empty")
+    temporary = cache.with_name(cache.name + ".tmp")
+    temporary.mkdir(mode=0o700)
+    shutil.copytree(prefix, temporary / "prefix", symlinks=True)
+    save(temporary / "identity.json", identity)
+    temporary.rename(cache)
+
+
+def build(source, output, confirmed, render_experiment=False, jobs=1, dependency_cache=None, ccache=False):
     if jobs not in (1, 2):
         raise ValueError("only one or two compiler jobs permitted")
     limits = preflight(source, output, confirmed)
+    if ccache and not shutil.which("ccache"):
+        raise ValueError("ccache requested but not installed")
+    if dependency_cache is not None:
+        dependency_cache = dependency_cache.resolve()
+        if dependency_cache == output.resolve() or output.resolve() in dependency_cache.parents:
+            raise ValueError("dependency cache must be outside output")
     output.mkdir(mode=0o700)
     report = {"revision": REVISION, "resources": limits, "state": "preparing", "steps": [],
               "compiled": False, "tests_passed": False, "printer_ready": False,
@@ -96,7 +142,8 @@ def build(source, output, confirmed, render_experiment=False, jobs=1):
     # Do not pass CI tokens or unrelated credentials to third-party build scripts.
     env = {key: value for key, value in os.environ.items() if key in {
         "PATH", "HOME", "USER", "LOGNAME", "LANG", "LC_ALL", "TMPDIR", "TERM", "SHELL",
-        "CC", "CXX", "PKG_CONFIG_PATH", "CMAKE_PREFIX_PATH"}}
+        "CC", "CXX", "PKG_CONFIG_PATH", "CMAKE_PREFIX_PATH",
+        "CCACHE_DIR", "CCACHE_BASEDIR", "CCACHE_MAXSIZE", "CCACHE_COMPILERCHECK"}}
     env.update({"CMAKE_BUILD_PARALLEL_LEVEL": str(jobs), "GIT_CONFIG_NOSYSTEM": "1",
                 "GIT_CONFIG_GLOBAL": "/dev/null", "GIT_TERMINAL_PROMPT": "0"})
 
@@ -113,7 +160,7 @@ def build(source, output, confirmed, render_experiment=False, jobs=1):
         return proc.stdout.decode() if capture else None
 
     try:
-        commands = plan(source, jobs)
+        commands = plan(source, jobs, ccache=ccache)
         for command in commands[:2]:
             run(command)
         checkout = output / "source"
@@ -147,7 +194,19 @@ def build(source, output, confirmed, render_experiment=False, jobs=1):
             (output / "os-packages.tsv").write_text(run(["dpkg-query", "-W", "-f=${Package}\t${Version}\n"], True))
         report["state"] = "building"
         save(report_path, report)
-        for command in commands[2:-1]:
+        prefix = output / "deps-build/destdir/usr/local"
+        identity = dependency_identity(checkout, render_experiment) if dependency_cache else None
+        restored = bool(dependency_cache and restore_dependencies(dependency_cache, prefix, identity))
+        report["dependency_cache_hit"] = restored
+        report["ccache_enabled"] = ccache
+        save(report_path, report)
+        if not restored:
+            for command in commands[2:4]:
+                run(command)
+            # Persist completed dependencies BEFORE the application can fail.
+            if dependency_cache:
+                store_dependencies(dependency_cache, prefix, identity)
+        for command in commands[4:-1]:
             run(command)
         binary = output / "build/src/bambu-studio"
         if not binary.is_file():
@@ -176,14 +235,17 @@ def main():
     parser.add_argument("--confirm-isolated-builder", action="store_true")
     parser.add_argument("--render-experiment", action="store_true", help="also apply unvalidated X11/GLX source variant")
     parser.add_argument("--jobs", type=int, choices=(1, 2), default=1)
+    parser.add_argument("--dependency-cache", type=Path, help="external cache of completed dependency install prefix")
+    parser.add_argument("--ccache", action="store_true", help="use ccache compiler launchers")
     parser.add_argument("--plan", action="store_true", help="print commands only; never execute")
     args = parser.parse_args()
     if args.plan:
-        print(json.dumps({"commands": plan(args.source.resolve(), args.jobs), "build_executed": False,
+        print(json.dumps({"commands": plan(args.source.resolve(), args.jobs, ccache=args.ccache), "build_executed": False,
                           "printer_ready": False, "render_experiment": args.render_experiment,
                           "requires": "isolated external builder; see builder README"}, indent=2))
         return 0
-    build(args.source.resolve(), args.output.absolute(), args.confirm_isolated_builder, args.render_experiment, args.jobs)
+    build(args.source.resolve(), args.output.absolute(), args.confirm_isolated_builder,
+          args.render_experiment, args.jobs, args.dependency_cache, args.ccache)
     return 0
 
 

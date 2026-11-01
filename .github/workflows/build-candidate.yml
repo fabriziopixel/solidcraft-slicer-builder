@@ -7,7 +7,7 @@ on:
         description: Candidate source variant (never deployed)
         type: choice
         options: [x11, metadata]
-        default: x11
+        default: metadata
 
 permissions:
   contents: read
@@ -76,7 +76,7 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            autoconf build-essential ninja-build cmake extra-cmake-modules file gettext git wget \
+            autoconf build-essential ninja-build cmake ccache extra-cmake-modules file gettext git wget \
             libgstreamerd-3-dev libsecret-1-dev libosmesa6-dev libssl-dev eglexternalplatform-dev \
             libcurl4-openssl-dev libdbus-1-dev libglew-dev libudev-dev libmspack-dev libgl1-mesa-dev \
             libgtk-3-dev libxkbcommon-dev libtool libunwind-dev libfuse2 texinfo nasm yasm libx264-dev \
@@ -89,6 +89,42 @@ jobs:
           command -v c++
           python3 -m unittest discover -s slicer/tests -p test_cmake_linkage.py -v
 
+      - name: Compute strict cache identity after installing prerequisites
+        id: cache-id
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          from slicer.builder.driver import dependency_identity
+          identity = dependency_identity(Path(os.environ['CI_SOURCE']), os.environ['VARIANT'] == 'x11')
+          # Absolute install paths must remain identical across hosted jobs.
+          identity['runner_root'] = os.environ['CI_ROOT']
+          digest = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'key=b2-deps-v1-{digest}\n')
+          PY
+          echo "CCACHE_DIR=$CI_ROOT/ccache" >> "$GITHUB_ENV"
+          echo "CCACHE_BASEDIR=$CI_OUTPUT/source" >> "$GITHUB_ENV"
+          echo "CCACHE_MAXSIZE=2G" >> "$GITHUB_ENV"
+          echo "CCACHE_COMPILERCHECK=content" >> "$GITHUB_ENV"
+
+      - name: Restore completed dependencies (exact identity only)
+        id: deps-cache
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        with:
+          path: ${{ env.CI_ROOT }}/dependency-cache
+          key: ${{ steps.cache-id.outputs.key }}
+
+      - name: Restore C++ compiler cache
+        uses: actions/cache/restore@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        with:
+          path: ${{ env.CI_ROOT }}/ccache
+          key: ${{ steps.cache-id.outputs.key }}-ccache-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ steps.cache-id.outputs.key }}-ccache-
+
       - name: Compile candidate and run CTest (no release or printer connection)
         shell: bash
         run: |
@@ -100,7 +136,40 @@ jobs:
             *) echo 'Unknown variant'; exit 1 ;;
           esac
           python3 -m slicer.builder.driver --source "$CI_SOURCE" --output "$CI_OUTPUT" \
-            --confirm-isolated-builder --jobs 2 "${extra[@]}"
+            --confirm-isolated-builder --jobs 2 --ccache \
+            --dependency-cache "$CI_ROOT/dependency-cache" "${extra[@]}"
+
+      # Cache saves intentionally run on compile/CTest failure too. Never cache a
+      # partial dependency install, entire home directory, credentials or CAD data.
+      - name: Save completed dependencies even if candidate compilation failed
+        if: ${{ always() && steps.cache-id.outcome == 'success' && steps.deps-cache.outputs.cache-hit != 'true' }}
+        shell: bash
+        run: |
+          if test -f "$CI_ROOT/dependency-cache/identity.json"; then
+            echo "DEPS_CACHE_READY=true" >> "$GITHUB_ENV"
+            du -sh "$CI_ROOT/dependency-cache"
+          fi
+
+      - name: Persist completed dependency cache
+        if: ${{ always() && env.DEPS_CACHE_READY == 'true' }}
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        with:
+          path: ${{ env.CI_ROOT }}/dependency-cache
+          key: ${{ steps.cache-id.outputs.key }}
+
+      - name: Report compiler cache statistics
+        if: ${{ always() && steps.cache-id.outcome == 'success' }}
+        shell: bash
+        run: |
+          ccache --show-stats | tee "$CI_ROOT/ccache-stats.txt"
+          ccache --show-stats >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Save compiler work even on failure
+        if: ${{ always() && steps.cache-id.outcome == 'success' }}
+        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        with:
+          path: ${{ env.CI_ROOT }}/ccache
+          key: ${{ steps.cache-id.outputs.key }}-ccache-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Upload diagnostic reports only (NO executables)
         if: always()
@@ -110,6 +179,7 @@ jobs:
           retention-days: 7
           if-no-files-found: warn
           path: |
+            ${{ env.CI_ROOT }}/ccache-stats.txt
             ${{ env.CI_ROOT }}/host-before.txt
             ${{ env.CI_ROOT }}/host-after-cleanup.txt
             ${{ env.CI_OUTPUT }}/build-report.json

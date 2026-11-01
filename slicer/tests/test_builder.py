@@ -78,6 +78,88 @@ class BuilderTests(unittest.TestCase):
         self.assertEqual(commands[-1][0], "ctest")
         self.assertIn("--no-tests=error", commands[-1])
 
+    def test_ccache_launchers_opt_in_and_tests_still_required(self):
+        commands = driver.plan(self.source, ccache=True)
+        self.assertIn('-DCMAKE_CXX_COMPILER_LAUNCHER=ccache', commands[4])
+        self.assertIn('-DCMAKE_C_COMPILER_LAUNCHER=ccache', commands[4])
+        self.assertNotIn('-DCMAKE_CXX_COMPILER_LAUNCHER=ccache', driver.plan(self.source)[4])
+        self.assertEqual(commands[-1][0], 'ctest')
+
+    def test_dependency_cache_roundtrip_and_mismatch_rejection(self):
+        prefix = self.root / 'installed'
+        prefix.mkdir()
+        (prefix / 'library.a').write_bytes(b'synthetic library')
+        cache = self.root / 'deps-cache'
+        identity = {'schema': 1, 'compiler': 'synthetic'}
+        self.assertFalse(driver.restore_dependencies(cache, self.root / 'absent', identity))
+        driver.store_dependencies(cache, prefix, identity)
+        destination = self.root / 'restored'
+        self.assertTrue(driver.restore_dependencies(cache, destination, identity))
+        self.assertEqual((destination / 'library.a').read_bytes(), b'synthetic library')
+        with self.assertRaisesRegex(ValueError, 'identity mismatch'):
+            driver.restore_dependencies(cache, self.root / 'wrong', {'schema': 2})
+        with self.assertRaisesRegex(ValueError, 'overwrite'):
+            driver.store_dependencies(cache, prefix, identity)
+
+    def test_dependencies_survive_application_failure_and_are_reused(self):
+        docs = self.root / 'docs/slicer'
+        docs.mkdir(parents=True)
+        (docs / 'b2-source-index.json').write_text('[]')
+        (docs / 'b2-source-results.json').write_text('{"patches": []}')
+        cache = self.root / 'cache'
+        calls = []
+        def command(argv, **kwargs):
+            calls.append(argv)
+            cwd = kwargs['cwd']
+            if argv[:2] == ['git', 'clone']:
+                (cwd / 'source').mkdir()
+            if argv[:3] == ['cmake', '--build', 'deps-build']:
+                prefix = cwd / 'deps-build/destdir/usr/local'
+                prefix.mkdir(parents=True)
+                (prefix / 'synthetic.a').write_text('synthetic')
+            if argv[:3] == ['cmake', '--build', 'build']:
+                raise subprocess.CalledProcessError(1, argv)
+            data = (driver.REVISION + '\n').encode() if 'rev-parse' in argv else b''
+            return subprocess.CompletedProcess(argv, 0, stdout=data)
+        with patch.object(driver, 'ROOT', self.root), \
+                patch.object(driver, 'preflight', return_value={}), \
+                patch.object(driver, 'build_fixes', return_value=[]), \
+                patch.object(driver, 'dependency_identity', return_value={'schema': 1}), \
+                patch.object(driver.subprocess, 'run', side_effect=command):
+            with self.assertRaises(subprocess.CalledProcessError):
+                driver.build(self.source, self.output, True, dependency_cache=cache)
+            self.assertTrue((cache / 'identity.json').is_file())
+            calls.clear()
+            second = self.root / 'second'
+            with self.assertRaises(subprocess.CalledProcessError):
+                driver.build(self.source, second, True, dependency_cache=cache)
+        self.assertFalse(any('deps-build' in argv for argv in calls))
+        report = json.loads((second / 'build-report.json').read_text())
+        self.assertTrue(report['dependency_cache_hit'])
+        self.assertFalse(report['compiled'])
+        self.assertFalse(report['tests_passed'])
+
+    def test_empty_or_incomplete_dependency_cache_rejected(self):
+        empty = self.root / 'empty'
+        empty.mkdir()
+        cache = self.root / 'cache'
+        with self.assertRaisesRegex(ValueError, 'missing or empty'):
+            driver.store_dependencies(cache, empty, {})
+        cache.mkdir()
+        (cache / 'identity.json').write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'incomplete'):
+            driver.restore_dependencies(cache, self.root / 'restore', {})
+
+    def test_ccache_environment_allowlist_excludes_tokens(self):
+        with patch.object(driver, 'preflight', return_value={}), \
+                patch.dict(driver.os.environ, {'CCACHE_DIR': '/tmp/synthetic-cache', 'GITHUB_TOKEN': 'secret'}), \
+                patch.object(driver.subprocess, 'run', side_effect=subprocess.CalledProcessError(1, 'git')) as run:
+            with self.assertRaises(subprocess.CalledProcessError):
+                driver.build(self.source, self.output, True, ccache=True)
+        env = run.call_args.kwargs['env']
+        self.assertEqual(env['CCACHE_DIR'], '/tmp/synthetic-cache')
+        self.assertNotIn('GITHUB_TOKEN', env)
+
     def test_unbounded_parallelism_rejected_before_build(self):
         with self.assertRaisesRegex(ValueError, "one or two"):
             driver.build(self.source, self.output, True, jobs=8)
@@ -143,6 +225,18 @@ class BuilderTests(unittest.TestCase):
 
 
 class KitTests(unittest.TestCase):
+    def test_workflow_template_matches_and_saves_caches_on_failure(self):
+        workflow = (driver.ROOT / 'slicer/builder/build-candidate.workflow.yml').read_text()
+        deployed = driver.ROOT / '.github/workflows/build-candidate.yml'
+        if deployed.exists():
+            self.assertEqual(workflow, deployed.read_text())
+        self.assertIn('default: metadata', workflow)
+        self.assertEqual(workflow.count('uses: actions/cache/save@'), 2)
+        self.assertIn("always() && env.DEPS_CACHE_READY == 'true'", workflow)
+        self.assertIn('--dependency-cache "$CI_ROOT/dependency-cache"', workflow)
+        self.assertIn('CCACHE_MAXSIZE=2G', workflow)
+        self.assertIn('restore-keys:', workflow)
+
     def test_fila_manager_format_patch_only_adds_required_include(self):
         text = (driver.ROOT / "slicer/engine/patches/0010-fila-manager-test-boost-format.patch").read_text()
         removed = [line for line in text.splitlines() if line.startswith("-") and not line.startswith("---")]
