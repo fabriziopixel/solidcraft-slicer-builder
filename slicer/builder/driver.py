@@ -64,7 +64,7 @@ def plan(source, jobs=1, ccache=False):
 
 
 def build_fixes(checkout):
-    """Verify the reviewed test API compatibility fix before applying any patch."""
+    """Verify reviewed compatibility/runtime patch sources before applying any patch."""
     fixes = json.loads((ROOT / "docs/slicer/b2-build-fixes.json").read_text())
     if fixes["revision"] != REVISION:
         raise ValueError("build fix revision mismatch")
@@ -134,9 +134,9 @@ def build(source, output, confirmed, render_experiment=False, jobs=1, dependency
               "compiled": False, "tests_passed": False, "printer_ready": False,
               "production_approved": False, "started_unix": time.time(),
               "render_experiment": render_experiment, "compiler_jobs": jobs,
-              "limitations": ["Experimental recipe not previously executed end-to-end.",
+              "limitations": ["Earlier candidates compiled but failed CTest; new patches still require validation.",
                               "OS packages and upstream dependency downloads not yet frozen.",
-                              "Metadata patches only; headless rendering remains unresolved."]}
+                              "Includes candidate NFP runtime guards; metadata/rendering acceptance remains open."]}
     report_path = output / "build-report.json"
     save(report_path, report)
     # Do not pass CI tokens or unrelated credentials to third-party build scripts.

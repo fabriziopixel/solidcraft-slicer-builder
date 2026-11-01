@@ -1,0 +1,89 @@
+diff --git a/src/libnest2d/include/libnest2d/placers/nfpplacer.hpp b/src/libnest2d/include/libnest2d/placers/nfpplacer.hpp
+--- a/src/libnest2d/include/libnest2d/placers/nfpplacer.hpp
++++ b/src/libnest2d/include/libnest2d/placers/nfpplacer.hpp
+@@ -564,6 +564,9 @@
+     template<class Range = ConstItemRange<typename Base::DefaultIter>>
+     PackResult trypack(Item& item,
+                         const Range& remaining = Range()) {
++        // Empty/zero-area contours have no usable reference vertex for NFP.
++        // Reject before either normal or wipe-tower placement can dereference one.
++        if (item.area() <= 0.) return PackResult{};
+         if (item.is_wipe_tower) {
+             PackResult result1 = _trypack_with_original_pos(item);
+             if (result1.score() >= 0 && result1.score() < LARGE_COST_TO_REJECT) return result1;
+@@ -862,7 +865,7 @@
+         }
+ 
+         for (auto &it : items_) {
+-            config_.progressFunc((boost::format("_trypack: plate: %4%, existing object: %1%, pos: (%2%, %3%)") % it.get().name % unscale_(it.get().translation()[0]) %
++            if (config_.progressFunc) config_.progressFunc((boost::format("_trypack: plate: %4%, existing object: %1%, pos: (%2%, %3%)") % it.get().name % unscale_(it.get().translation()[0]) %
+                                   unscale_(it.get().translation()[1]) % plateID())
+                                      .str());
+         }
+@@ -1080,7 +1083,7 @@
+         auto   binbb  = sl::boundingBox(bin_);
+ 
+         for (auto &it : items_) {
+-            config_.progressFunc((boost::format("_trypack_with_original_pos: plate: %4%, existing object: %1%, pos: (%2%, %3%)") % it.get().name % unscale_(it.get().translation()[0]) %
++            if (config_.progressFunc) config_.progressFunc((boost::format("_trypack_with_original_pos: plate: %4%, existing object: %1%, pos: (%2%, %3%)") % it.get().name % unscale_(it.get().translation()[0]) %
+                                   unscale_(it.get().translation()[1]) % plateID())
+                                      .str());
+         }
+@@ -1112,7 +1115,7 @@
+             ret        = PackResult(item);
+             ret.score_ = global_score;
+             // merged_pile_ = nfp::merge(merged_pile_, item.transformedShape());
+-            config_.progressFunc((boost::format("_trypack_with_original_pos: item %1% can pack") % item.name).str());
++            if (config_.progressFunc) config_.progressFunc((boost::format("_trypack_with_original_pos: item %1% can pack") % item.name).str());
+         } else {
+             ret = PackResult(best_overfit);
+         }
+diff --git a/tests/libnest2d/libnest2d_tests_main.cpp b/tests/libnest2d/libnest2d_tests_main.cpp
+--- a/tests/libnest2d/libnest2d_tests_main.cpp
++++ b/tests/libnest2d/libnest2d_tests_main.cpp
+@@ -643,6 +643,45 @@
+ 
+         REQUIRE(area_sum == Approx(area_merge));
+     }
++}
++
++TEST_CASE("NFP placer rejects degenerate contours before vertex access", "[Nesting]") {
++    NfpPlacer placer(Box(250000000, 210000000));
++    std::vector<Item> items = {
++        Item{}, Item{{0, 0}}, Item{{0, 0}, {10, 0}, {20, 0}}
++    };
++    for (auto &item : items) {
++        REQUIRE(item.area() == 0.);
++        for (bool wipe_tower : {false, true}) {
++            item.is_wipe_tower = wipe_tower;
++            auto result = placer.pack(item);
++            REQUIRE_FALSE(bool(result));
++            REQUIRE(result.score() < 0.);
++            REQUIRE(item.binId() == BIN_ID_UNSET);
++            REQUIRE(placer.getItems().empty());
++        }
++    }
++}
++
++TEST_CASE("NFP progress callback can be omitted with packed items", "[Nesting]") {
++    NfpPlacer placer(Box(250000000, 210000000));
++    NfpPlacer::Config config;
++    unsigned notifications = 0;
++    SECTION("Callback omitted") {
++        REQUIRE_FALSE(bool(config.progressFunc));
++    }
++    SECTION("Callback supplied") {
++        config.progressFunc = [&notifications](const std::string&) { ++notifications; };
++    }
++    placer.configure(config);
++    Item first(RectangleItem{10000000, 10000000});
++    auto result = placer.pack(first);
++    REQUIRE(bool(result));
++    placer.accept(result);
++    REQUIRE(placer.getItems().size() == 1);
++    Item second(RectangleItem{10000000, 10000000});
++    REQUIRE_NOTHROW(placer.pack(second));
++    if (config.progressFunc) REQUIRE(notifications > 0);
+ }
+ 
+ TEST_CASE("EmptyItemShouldBeUntouched", "[Nesting]") {

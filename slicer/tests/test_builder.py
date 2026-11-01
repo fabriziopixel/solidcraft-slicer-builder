@@ -237,6 +237,48 @@ class KitTests(unittest.TestCase):
         self.assertIn('CCACHE_MAXSIZE=2G', workflow)
         self.assertIn('restore-keys:', workflow)
 
+    def test_config_schema_patch_preserves_existing_assertion_intent(self):
+        text = (driver.ROOT / 'slicer/engine/patches/0012-config-test-current-schema.patch').read_text()
+        removed = [line[1:] for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]
+        added = [line[1:] for line in text.splitlines() if line.startswith('+') and not line.startswith('+++')]
+        mapping = {'perimeter_extrusion_width': 'spiral_mode_max_xy_smoothing',
+                   'perimeters': 'wall_loops', 'gcode_comments': 'enable_support',
+                   'bed_temperature': 'hot_plate_temp', 'perimeter_speed': 'max_bridge_length',
+                   'end_gcode': 'machine_end_gcode',
+                   'first_layer_extrusion_width': 'spiral_mode_max_xy_smoothing',
+                   'support_material': 'enable_support'}
+        for old in removed:
+            expected = old
+            for key, value in mapping.items():
+                expected = expected.replace(key, value)
+            expected = expected.replace('config.opt_float("layer_height") == 0.3',
+                                        'config.opt_float("layer_height") == 0.2')
+            self.assertIn(expected, added)
+            self.assertFalse(old.lstrip().startswith(('#', 'SCENARIO(', 'GIVEN(')))
+        self.assertIn('            config.set("max_bridge_length", 60.0);', added)
+        self.assertEqual(sum('!= nullptr' in line for line in added), 5)
+        self.assertEqual(sum('config.validate().count(' in line for line in added), 2)
+
+    def test_nfp_patch_guards_only_invalid_input_and_optional_notifications(self):
+        text = (driver.ROOT / 'slicer/engine/patches/0013-nfp-degenerate-and-optional-progress.patch').read_text()
+        runtime, tests = text.split('diff --git a/tests/libnest2d/', 1)
+        removed = [line[1:].strip() for line in runtime.splitlines() if line.startswith('-') and not line.startswith('---')]
+        added = [line[1:].strip() for line in runtime.splitlines() if line.startswith('+') and not line.startswith('+++')]
+        self.assertEqual(len(removed), 3)
+        for old in removed:
+            self.assertTrue(old.startswith('config_.progressFunc('))
+            self.assertIn('if (config_.progressFunc) ' + old, added)
+        self.assertIn('if (item.area() <= 0.) return PackResult{};', added)
+        self.assertLess(runtime.index('+        if (item.area() <= 0.)'),
+                        runtime.index('         if (item.is_wipe_tower)'))
+        self.assertFalse(any(line.startswith('-') and not line.startswith('---') for line in tests.splitlines()))
+        self.assertEqual(sum(line.startswith('+TEST_CASE(') for line in tests.splitlines()), 2)
+        for required in ['+            REQUIRE_FALSE(bool(result));',
+                         '+            REQUIRE(item.binId() == BIN_ID_UNSET);',
+                         '+    REQUIRE_NOTHROW(placer.pack(second));',
+                         '+    if (config.progressFunc) REQUIRE(notifications > 0);']:
+            self.assertIn(required, tests)
+
     def test_fill_pattern_patch_keeps_factory_and_all_existing_assertions(self):
         text = (driver.ROOT / 'slicer/engine/patches/0011-fill-test-pattern-name.patch').read_text()
         removed = [line[1:] for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]

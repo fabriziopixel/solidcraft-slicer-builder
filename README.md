@@ -4,7 +4,7 @@ Public **source-only** build kit for the SolidCraft slicer laboratory. This repo
 
 ## Incremental CI caches and latest evidence
 
-Latest checked run `41310393746` also compiled successfully and failed six of eight CTest suites. See [runtime failure triage and bounded crash-backtrace plan](docs/slicer/B2-RUNTIME-DIAGNOSIS.md). The next diagnostic workflow keeps all gates unchanged and collects GDB backtraces only for suites with observed fatal signals. No engine fix or successful runtime validation is claimed.
+Latest completed diagnostic run `41340831232` compiled successfully, failed six of eight CTest suites, and collected all three crash backtraces. See [runtime evidence and candidate corrections](docs/slicer/B2-RUNTIME-DIAGNOSIS.md). Candidate 0011 updates the fill-test factory name; 0012 migrates generic configuration tests to reviewed current types; **0013 changes runtime NFP code** to reject zero-area inputs and guard optional progress callbacks, adding regression cases. These candidates have source checks, not successful C++/runtime validation. All CTest gates remain mandatory, and the other geometry/constraint failures are still open.
 
 Run `41279128051` completed C++ compilation, including `bambu-studio` and the test executables. CTest then failed six suites (including assertion failures and segmentation faults); `compiled=true` is **not** a passing candidate. Runtime diagnosis remains open; no tests are disabled or softened by this update.
 

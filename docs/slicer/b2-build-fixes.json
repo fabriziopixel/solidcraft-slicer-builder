@@ -3,7 +3,36 @@
   "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. CI run 41127129442 then failed on load_obj in the shared test helper. Broader static review also found stale writer lift/extruder calls, retract_lift and first_layer_height fields, and global brim access in active FFF tests. Adapt these to the reviewed current APIs. Numeric expectations and tolerances are unchanged; brim assertion expressions sum the current per-object map. Compilation and runtime semantics still require C++/CTest validation. Run 41176485962 collected further stale raster type names, ambiguous polygon overloads, removed free Voronoi construction calls, missing wx compile usage and static GUI/core linkage dependencies. Patches 0008/0009 retain all assertions and test targets. Segment Voronoi construction disables the new automatic repair to retain the old direct Boost construction semantics. Linux tests link the real GUI/core archive group and use the same wx setup as src; no mocks or networking execution are added. Runs 41185587433 and 41200655878 failed during CMake generation because libnest2d was outside that group despite its reciprocal link with libslic3r. Patch 0009 now groups GUI, core and libnest2d together. A synthetic CMake regression reproduces the old cycle and configures, links and runs eight tiny test executables with the corrected group before the expensive CI build. This does not validate the engine. Run 41206486085 then failed compiling two test objects because wx/string.h was missing: wxWidgets_FOUND was not imported from the sibling src directory, so the real UsewxWidgets module silently skipped compile setup. Patch 0009 now imports and requires that flag. The regression now uses CMake's real UsewxWidgets module, reproduces the missing-flag failure and builds/runs eight fixed fixture executables. Engine C++ build/CTest remains unverified. Run 41234235376 linked bambu-studio and eight test executables, but fila_manager_tests failed because DevUtil.h uses boost::format without including its declaration. Test-only patch 0010 includes boost/format.hpp before the GUI helper, retaining the wx-enabled branch, all assertions and test targets. Full compilation and CTest still require a new CI run.",
   "source_base_url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/",
   "runtime_review": "Runs 41279128051 and 41310393746 compiled successfully but failed six CTest suites. Static review of the pinned FillBase.cpp and PrintConfig.cpp proves that the old rectilinear string is absent from the infill map: zig-zag maps to ipRectilinear, which constructs FillRectilinear. Patch 0011 retains the string-factory coverage, uses the current name and adds three null guards. All existing geometry assertions, tolerances and disabled blocks remain unchanged. The new patch has not yet been compiled or executed; it does not resolve the other suite failures.",
+  "crash_followup": "Run 41340831232 compiled but failed CTest; all three crash backtraces were collected. Candidate 0012 migrates generic config access/validation tests to reviewed current schema types, retaining percent/type/invalid-input coverage and all original thresholds except the pinned layer_height default 0.3 -> 0.2. The unchanged-value test explicitly seeds 60.0. Candidate 0013 is a RUNTIME safety patch: reject zero-area items before either NFP placement path and guard all three optional progress callbacks. It adds direct degenerate-contour and empty-callback regression cases; original suite assertions remain. These new patches are source-verified but not yet compiled/runtime-validated. Six-suite acceptance gate remains mandatory; no engine lock or production change.",
   "sources": [
+    {
+      "path": "tests/libslic3r/test_config.cpp",
+      "sha256": "6538c4a300dd4a5e6ad6e699982f46961c4b530802aa62ab2decea2235a6a9a3"
+    },
+    {
+      "path": "src/libslic3r/Config.hpp",
+      "sha256": "6bdef8ab541fa48b045fea81d5e7fa49a4fe44c351cc030a89a488230c21f9c7"
+    },
+    {
+      "path": "src/libnest2d/include/libnest2d/nester.hpp",
+      "sha256": "90a22cf9d6e7226649a71d3ede1a83db4d97ab385325f281d8f9900617fb9002"
+    },
+    {
+      "path": "src/libnest2d/include/libnest2d/selections/firstfit.hpp",
+      "sha256": "f66970d18a676043c6fce832eefc4d3eb8f0bb99957c53377c3cfabd3f733fb5"
+    },
+    {
+      "path": "src/libnest2d/include/libnest2d/selections/selection_boilerplate.hpp",
+      "sha256": "c95dbe9a90248eb61cf660ba722eb64549ef7a5f25978eba43f173bcdef408b4"
+    },
+    {
+      "path": "src/libnest2d/include/libnest2d/placers/placer_boilerplate.hpp",
+      "sha256": "810cf53ddcff68e9a94ee5ed5e80562dc97242ba877d0a772586eea18ca1065b"
+    },
+    {
+      "path": "src/libnest2d/include/libnest2d/libnest2d.hpp",
+      "sha256": "36ad937a3d2e59c703a54b237904cff0d1378ac2fb609e5db517ac58a2b96605"
+    },
     {
       "path": "tests/fff_print/test_fill.cpp",
       "sha256": "063fc61f139c68390e3645afca3bf3bfe63f4a74cfa56d524719afdb6a90301c"
@@ -221,6 +250,14 @@
     {
       "path": "slicer/engine/patches/0011-fill-test-pattern-name.patch",
       "sha256": "e7484f154b9f7600684b96eb5fdca5361f3fcd92027c256a061b8df28c8253a4"
+    },
+    {
+      "path": "slicer/engine/patches/0012-config-test-current-schema.patch",
+      "sha256": "6b7c6e64cd44d9e6ccd144dc9123c6b76323d7aa8bf88d94762d052cb311e624"
+    },
+    {
+      "path": "slicer/engine/patches/0013-nfp-degenerate-and-optional-progress.patch",
+      "sha256": "251e4985a8f708b86a6a1b66988d8f088e049134d280333fd0a27f13b65eaf0f"
     }
   ],
   "compiled": false,

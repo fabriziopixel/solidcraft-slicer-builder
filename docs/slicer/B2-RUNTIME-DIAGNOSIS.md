@@ -1,4 +1,43 @@
-# B2 runtime diagnosis — run 41310393746
+# B2 runtime diagnosis and candidate corrections
+
+## Latest completed diagnostic evidence: 41340831232
+
+Run [41340831232](https://github.com/fabriziopixel/solidcraft-slicer-builder/actions/runs/41340831232) completed with failure after about 81 minutes. Application/tests compiled, dependency cache was reused, and the same six CTest suites failed. All three bounded GDB reruns completed without timeout. `debugger_exit_code=0` means GDB finished, **not** that its inferior passed: each backtrace records SIGSEGV.
+
+- Nesting: `rightmostTopVertex → calcnfp → _trypack → packItems → nest`, while running the empty-item case. Pinned `nester.hpp` dereferences the result of `max_element` without an empty-range check.
+- Config: crash in the accessor test immediately after the obsolete `gcode_comments` option is requested.
+- Fill: crash in `Fill: Pattern Path Length`, consistent with the previously reviewed null-returning string factory.
+
+The latter two Release traces identify test functions, not source instructions; pointer/root-cause identification additionally relies on the pinned source review. Neither patch 0011 nor the following candidates was in that completed run.
+
+## Candidate corrections for the next controlled attempt
+
+### 0012 — generic configuration tests, not a schema/runtime change
+
+The test intent is typed access, serialization, validation and rejection of invalid values. Substitutions use real current fields of matching types, not superficially similar names:
+
+| Old test field | Current test field | Reviewed type |
+|---|---|---|
+| `gcode_comments`, `support_material` | `enable_support` | bool, default false |
+| `bed_temperature` | `hot_plate_temp` | non-nullable integer vector |
+| `perimeter_speed` | `max_bridge_length` | scalar float, not a speed vector |
+| `end_gcode` | `machine_end_gcode` | string |
+| `perimeter_extrusion_width`, `first_layer_extrusion_width` | `spiral_mode_max_xy_smoothing` | float-or-percent, min 0 / max 1000 |
+| `perimeters` | `wall_loops` | integer, min 0 |
+
+This preserves generic **type** coverage; it is not evidence of equivalence between the physical settings. Invalid numeric tests additionally require the error map to name the field being tested. Five typed-pointer preconditions fail as assertions instead of dereferencing null. The unchanged-value test seeds 60.0 explicitly before malformed input, retaining the original 60.0 expectation rather than relying on a different option's default. The one default assertion changes from layer height 0.3 to **0.2**, the actual pinned schema default; no tolerance changes. No scenario, disabled block, invalid-input check or serialization test is removed.
+
+### 0013 — runtime NFP safety candidate, not merely a test adaptation
+
+The public `trypack` entry rejects `item.area() <= 0` with an unsuccessful `PackResult` before either the normal or wipe-tower path reaches a reference vertex. Empty/default, single-point and collinear contours have zero area; no fictitious vertex or successful placement is manufactured. Three `progressFunc` calls now check the optional function before invoking it, retaining supplied callbacks. Source review shows the callback defaults empty, so unconditional calls can throw `bad_function_call`; the previous exception itself has no throw-site backtrace.
+
+Two new real engine test cases exercise direct rejection (including both wipe-tower flag states) and omitted/supplied callbacks after a valid packed item. All original nesting cases and their bin expectations remain. Rejection can expose a separate historical UNSET-vs-UNFIT/bin-count disagreement in the original nesting tests; those assertions are deliberately not changed. This is **not** a claim to fix all nesting behavior, invalid fixed/preloaded contours, or the rectangle-arrangement result.
+
+### Verification and remaining gates
+
+Verified 52 pinned source hashes and applied all ten compatibility/runtime patches in a separate source copy. Local checks: 29 kit tests, seven diagnostic-helper tests, three synthetic CMake regressions; these do **not** validate engine C++ compilation or runtime. The next attempt includes 0011–0013 and keeps all eight CTest suites and their gates. Further failures are expected to remain possible, particularly bed placement, hull results, SLA intersections and filament-group constraints. No new engine image, lock update, production deployment or printer connection is authorized by these candidates.
+
+## Earlier evidence: 41310393746
 
 The metadata build at commit `8e58bf4461769dbc3b9c707aaa52dd29e5d77232` compiled successfully, including the application and test executables. CTest failed six of eight suites. This confirms the earlier runtime blocker; no gate is waived.
 

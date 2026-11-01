@@ -4,7 +4,7 @@ This kit prepares **candidate source builds**, not print-ready output. It contai
 
 ## Incremental builds on GitHub-hosted runners
 
-Latest checked run `41310393746` also compiled and failed six suites. The workflow now collects bounded GDB backtraces for suites with observed fatal signals, without changing the original CTest result. See `docs/slicer/B2-RUNTIME-DIAGNOSIS.md` in the public repository. This is diagnosis, not a runtime fix; no tests or assertions are disabled.
+Latest completed diagnostic run `41340831232` compiled, failed six suites, and collected all three crash backtraces. Candidates 0011/0012 adapt fill/config tests; **0013 is a runtime safety patch**, rejecting zero-area NFP inputs and guarding three optional callbacks. It adds engine regression tests and does not change existing suite expectations. Local source checks and Python/synthetic CMake tests pass; new C++/runtime validation is pending. No test is disabled and no geometry/score tolerance is relaxed. See `docs/slicer/B2-RUNTIME-DIAGNOSIS.md` for exact scope, the single schema-default expectation update, and unresolved failures.
 
 Earlier run `41279128051`: compilation completed; CTest failed six suites, with assertions and segmentation faults. No runtime-equivalence or print-readiness claim follows from compilation.
 
@@ -60,6 +60,10 @@ Run `41234235376` passed the CMake/wx regression and linked `bambu-studio` plus 
 ## Fill string-factory runtime compatibility candidate
 
 While diagnostic run `41340831232` is compiling the unchanged previous revision, static review established a null dereference in the fill tests: the current infill map uses `zig-zag` for `ipRectilinear`, not `rectilinear`; the string factory returns null for the old name. Test-only patch `0011` updates all three calls and adds explicit null assertions, preserving every original geometry check and string-factory coverage. Do not confuse `zig-zag` with the separate `zigzag` algorithm. The factory, enum map and test sources are hash-pinned. Application of the full compatibility series and exact fill-test scope are verified; the new patch has **not** been compiled or runtime-validated and is absent from the running diagnostic attempt. Other suite failures remain open. See `docs/slicer/B2-RUNTIME-DIAGNOSIS.md` for evidence and the configuration-type incompatibilities that cannot safely be fixed by blind key renaming.
+
+## Crash follow-up candidates 0012/0013
+
+Patch 0012 preserves generic config type/serialization/invalid-input coverage using actual current schema fields (including scalar float and float-or-percent fields, not incompatible speed/line-width replacements). Pointer preconditions prevent null dereferences, invalid-value tests require the expected error-map key, and the pinned layer-height default is 0.2 rather than 0.3. The unchanged-value check seeds 60.0 explicitly. Patch 0013 changes NFP runtime code: zero-area items return an unsuccessful result before normal/wipe-tower vertex access, and empty optional notification callbacks are not invoked. Added direct engine tests cover degenerate contours and omitted/supplied callbacks; all original tests remain. These candidates still need the real CI build and engine tests; source review is not runtime proof. Other geometric, bed-placement, bin-count and capacity/score failures are not declared fixed.
 
 ## Fetch public upstream sources on the builder
 
