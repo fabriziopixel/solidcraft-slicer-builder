@@ -1,0 +1,33 @@
+diff --git a/tests/fff_print/test_fill.cpp b/tests/fff_print/test_fill.cpp
+--- a/tests/fff_print/test_fill.cpp
++++ b/tests/fff_print/test_fill.cpp
+@@ -27,7 +27,8 @@
+ #endif
+ 
+ TEST_CASE("Fill: Pattern Path Length", "[Fill]") {
+-    std::unique_ptr<Slic3r::Fill> filler(Slic3r::Fill::new_from_type("rectilinear"));
++    std::unique_ptr<Slic3r::Fill> filler(Slic3r::Fill::new_from_type("zig-zag"));
++    REQUIRE(filler != nullptr);
+     filler->angle = float(-(PI)/2.0);
+ 	FillParams fill_params;
+ 	filler->spacing = 5;
+@@ -121,7 +122,8 @@
+     SECTION("Rotated Square") {
+         Slic3r::Points square { Point::new_scale(0,0), Point::new_scale(50,0), Point::new_scale(50,50), Point::new_scale(0,50)};
+         Slic3r::ExPolygon expolygon(square);
+-        std::unique_ptr<Slic3r::Fill> filler(Slic3r::Fill::new_from_type("rectilinear"));
++        std::unique_ptr<Slic3r::Fill> filler(Slic3r::Fill::new_from_type("zig-zag"));
++        REQUIRE(filler != nullptr);
+ 		filler->bounding_box = get_extents(expolygon.contour);
+         filler->angle = 0;
+         
+@@ -431,7 +433,8 @@
+ 
+ bool test_if_solid_surface_filled(const ExPolygon& expolygon, double flow_spacing, double angle, double density)
+ {
+-    std::unique_ptr<Slic3r::Fill> filler(Slic3r::Fill::new_from_type("rectilinear"));
++    std::unique_ptr<Slic3r::Fill> filler(Slic3r::Fill::new_from_type("zig-zag"));
++    REQUIRE(filler != nullptr);
+ 	filler->bounding_box = get_extents(expolygon.contour);
+     filler->angle = float(angle);
+ 

@@ -23,4 +23,21 @@ The workflow now preserves the original full CTest result and, after failure on 
 
 GDB is installed if necessary on the disposable GitHub runner only, after compilation/cache identity calculation. No dependency recipes, compiler flags, engine sources, assertions or test selection in the acceptance run change. Missing GDB, timeout or even successful diagnostic reruns cannot turn the failed build green. The extra helper has seven synthetic unit tests; these are not engine runtime validation.
 
-The next patch decision requires the collected stack traces and review of the corresponding pinned source/callers. Metadata/rendering validation, desktop comparison, legal review, production approval and printer readiness all remain open.
+The remaining crash patch decisions require the collected stack traces and review of the corresponding pinned source/callers. Metadata/rendering validation, desktop comparison, legal review, production approval and printer readiness all remain open.
+
+## Static follow-up while diagnostic run 41340831232 compiles
+
+A specific null dereference is established directly in the pinned sources, independently of a backtrace:
+
+- `tests/fff_print/test_fill.cpp:30,124,434` requests `Fill::new_from_type("rectilinear")`, then dereferences the returned pointer without checking it.
+- `src/libslic3r/Fill/FillBase.cpp:69–73` looks up that exact string in `ConfigOptionEnum<InfillPattern>` and returns `nullptr` for an absent entry.
+- `src/libslic3r/PrintConfig.cpp:219–245` no longer contains `rectilinear` in that infill map. It maps `zig-zag` to `ipRectilinear` (distinct from `zigzag`, which maps to `ipZigZag`).
+- `FillBase.cpp:40` constructs the expected `FillRectilinear` for `ipRectilinear`.
+
+Candidate test-only patch `0011-fill-test-pattern-name.patch` uses the current `zig-zag` string in all three places and adds three `REQUIRE(filler != nullptr)` guards. It retains coverage of the string factory; it does not substitute a different filling algorithm. Every original geometric assertion, number, tolerance, section and disabled block is unchanged. Source and patch hashes are pinned in `b2-build-fixes.json`.
+
+Verified 45 source hashes, applied the eight compatibility patches in a separate source copy, and confirmed the fill-test file matches the original byte-for-byte after reversing just the three renamed factory arguments and three new guards. These are source checks, not compilation or runtime tests. 27 kit tests and seven diagnostic tests pass locally; the new kit test checks the exact patch scope and pinned source coverage.
+
+Run `41340831232` remains on its original commit `4f5d456900b5c44a8e6cb32da3025eaa4b90bb93`: it **does not contain patch 0011**. No extra build was launched during this review. The patch is prepared for a subsequent reviewed attempt; neither the observed crash's stack nor subsequent fill geometry results have been validated yet.
+
+The configuration tests need more than blind key renaming. For example, old scalar `perimeter_speed` assertions do not match the current `outer_wall_speed` option, which is `coFloats`, and old float-or-percent line-width tests do not match current `initial_layer_line_width`, which is `coFloat`. Those tests must preserve meaningful type/value/invalid-input coverage; changing keys alone would be misleading. No such patch is included here. Nesting callbacks, bed-placement fixtures, hull ordering, SLA intersections and filament-group failures remain separate open investigations.

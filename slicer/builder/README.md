@@ -57,6 +57,10 @@ Patch `0009` imports the same directory-scoped wx compile settings used by `src/
 
 Run `41234235376` passed the CMake/wx regression and linked `bambu-studio` plus eight test executables, but compilation of `fila_manager_tests_main.cpp` failed: the wx-enabled GUI helper reaches `DevUtil.h`, which uses `boost::format` without including its declaration. Test-only patch `0010` explicitly includes `<boost/format.hpp>` before that helper. The original test source and utility header hashes are pinned in the build-fix manifest. No runtime source, assertions, test selection or wx-enabled branch is changed. Local source/patch checks alone do not prove a complete C++ build. Subsequent run `41279128051` compiled but failed CTest; see the latest status above.
 
+## Fill string-factory runtime compatibility candidate
+
+While diagnostic run `41340831232` is compiling the unchanged previous revision, static review established a null dereference in the fill tests: the current infill map uses `zig-zag` for `ipRectilinear`, not `rectilinear`; the string factory returns null for the old name. Test-only patch `0011` updates all three calls and adds explicit null assertions, preserving every original geometry check and string-factory coverage. Do not confuse `zig-zag` with the separate `zigzag` algorithm. The factory, enum map and test sources are hash-pinned. Application of the full compatibility series and exact fill-test scope are verified; the new patch has **not** been compiled or runtime-validated and is absent from the running diagnostic attempt. Other suite failures remain open. See `docs/slicer/B2-RUNTIME-DIAGNOSIS.md` for evidence and the configuration-type incompatibilities that cannot safely be fixed by blind key renaming.
+
 ## Fetch public upstream sources on the builder
 
 ```sh

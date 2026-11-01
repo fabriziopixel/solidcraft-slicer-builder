@@ -28,6 +28,7 @@ FILES = (
     "slicer/engine/patches/0008-geometry-raster-test-api.patch",
     "slicer/engine/patches/0009-linux-test-link-dependencies.patch",
     "slicer/engine/patches/0010-fila-manager-test-boost-format.patch",
+    "slicer/engine/patches/0011-fill-test-pattern-name.patch",
     "docs/slicer/b2-build-fixes.json",
     "docs/slicer/B2-RUNTIME-DIAGNOSIS.md",
     "slicer/engine/experiments/0003-x11-glx-rendering.patch",

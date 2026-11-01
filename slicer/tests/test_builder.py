@@ -237,6 +237,22 @@ class KitTests(unittest.TestCase):
         self.assertIn('CCACHE_MAXSIZE=2G', workflow)
         self.assertIn('restore-keys:', workflow)
 
+    def test_fill_pattern_patch_keeps_factory_and_all_existing_assertions(self):
+        text = (driver.ROOT / 'slicer/engine/patches/0011-fill-test-pattern-name.patch').read_text()
+        removed = [line[1:] for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]
+        added = [line[1:] for line in text.splitlines() if line.startswith('+') and not line.startswith('+++')]
+        self.assertEqual(len(removed), 3)
+        self.assertTrue(all('Fill::new_from_type("rectilinear")' in line for line in removed))
+        renamed = [line for line in added if 'Fill::new_from_type' in line]
+        guards = [line for line in added if 'REQUIRE(filler != nullptr);' in line]
+        self.assertEqual(renamed, [line.replace('"rectilinear"', '"zig-zag"') for line in removed])
+        self.assertEqual(len(guards), 3)
+        self.assertEqual(len(added), 6)
+        manifest = json.loads((driver.ROOT / 'docs/slicer/b2-build-fixes.json').read_text())
+        paths = {entry['path'] for entry in manifest['sources']}
+        self.assertTrue({'tests/fff_print/test_fill.cpp', 'src/libslic3r/Fill/FillBase.cpp',
+                         'src/libslic3r/PrintConfig.cpp'}.issubset(paths))
+
     def test_fila_manager_format_patch_only_adds_required_include(self):
         text = (driver.ROOT / "slicer/engine/patches/0010-fila-manager-test-boost-format.patch").read_text()
         removed = [line for line in text.splitlines() if line.startswith("-") and not line.startswith("---")]

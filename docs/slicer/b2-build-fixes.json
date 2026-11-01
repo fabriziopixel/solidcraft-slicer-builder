@@ -2,7 +2,20 @@
   "revision": "926a7192574bcb9b3a732e1ec59a46d79cb45466",
   "reason": "CI run 41064607414: two stale test callbacks accept one parameter; NfpPConfig::object_function requires item and packed_items. CI run 41106982877 then reached a stale axis-angle set_rotation call in test_3mf.cpp. Adapt it to the current vector setter, preserving the other rotation axes. CI run 41127129442 then failed on load_obj in the shared test helper. Broader static review also found stale writer lift/extruder calls, retract_lift and first_layer_height fields, and global brim access in active FFF tests. Adapt these to the reviewed current APIs. Numeric expectations and tolerances are unchanged; brim assertion expressions sum the current per-object map. Compilation and runtime semantics still require C++/CTest validation. Run 41176485962 collected further stale raster type names, ambiguous polygon overloads, removed free Voronoi construction calls, missing wx compile usage and static GUI/core linkage dependencies. Patches 0008/0009 retain all assertions and test targets. Segment Voronoi construction disables the new automatic repair to retain the old direct Boost construction semantics. Linux tests link the real GUI/core archive group and use the same wx setup as src; no mocks or networking execution are added. Runs 41185587433 and 41200655878 failed during CMake generation because libnest2d was outside that group despite its reciprocal link with libslic3r. Patch 0009 now groups GUI, core and libnest2d together. A synthetic CMake regression reproduces the old cycle and configures, links and runs eight tiny test executables with the corrected group before the expensive CI build. This does not validate the engine. Run 41206486085 then failed compiling two test objects because wx/string.h was missing: wxWidgets_FOUND was not imported from the sibling src directory, so the real UsewxWidgets module silently skipped compile setup. Patch 0009 now imports and requires that flag. The regression now uses CMake's real UsewxWidgets module, reproduces the missing-flag failure and builds/runs eight fixed fixture executables. Engine C++ build/CTest remains unverified. Run 41234235376 linked bambu-studio and eight test executables, but fila_manager_tests failed because DevUtil.h uses boost::format without including its declaration. Test-only patch 0010 includes boost/format.hpp before the GUI helper, retaining the wx-enabled branch, all assertions and test targets. Full compilation and CTest still require a new CI run.",
   "source_base_url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/",
+  "runtime_review": "Runs 41279128051 and 41310393746 compiled successfully but failed six CTest suites. Static review of the pinned FillBase.cpp and PrintConfig.cpp proves that the old rectilinear string is absent from the infill map: zig-zag maps to ipRectilinear, which constructs FillRectilinear. Patch 0011 retains the string-factory coverage, uses the current name and adds three null guards. All existing geometry assertions, tolerances and disabled blocks remain unchanged. The new patch has not yet been compiled or executed; it does not resolve the other suite failures.",
   "sources": [
+    {
+      "path": "tests/fff_print/test_fill.cpp",
+      "sha256": "063fc61f139c68390e3645afca3bf3bfe63f4a74cfa56d524719afdb6a90301c"
+    },
+    {
+      "path": "src/libslic3r/Fill/FillBase.cpp",
+      "sha256": "c501dd61b02b0c0f2439bb343fbcc1ab127297aaa5863535db3ddc3d5c3c9c57"
+    },
+    {
+      "path": "src/libslic3r/Fill/FillBase.hpp",
+      "sha256": "e975f0cd1a58b37e29ddcdea671ccf17f106192c4e516040c0305319397e7feb"
+    },
     {
       "path": "tests/fila_manager/fila_manager_tests_main.cpp",
       "sha256": "bff8369372a3a3c094108bf687a9864b0415ac57b49857815c601d26b4a8aaf7"
@@ -204,6 +217,10 @@
     {
       "path": "slicer/engine/patches/0009-linux-test-link-dependencies.patch",
       "sha256": "7ca36c42f1c66778181b156ec534cb83bf8587e3083289b6b6a65ff8d8c2480c"
+    },
+    {
+      "path": "slicer/engine/patches/0011-fill-test-pattern-name.patch",
+      "sha256": "e7484f154b9f7600684b96eb5fdca5361f3fcd92027c256a061b8df28c8253a4"
     }
   ],
   "compiled": false,
