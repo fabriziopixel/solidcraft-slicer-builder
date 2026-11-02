@@ -4,7 +4,12 @@
   "source_base_url": "https://raw.githubusercontent.com/bambulab/BambuStudio/926a7192574bcb9b3a732e1ec59a46d79cb45466/",
   "runtime_review": "Runs 41279128051 and 41310393746 compiled successfully but failed six CTest suites. Static review of the pinned FillBase.cpp and PrintConfig.cpp proves that the old rectilinear string is absent from the infill map: zig-zag maps to ipRectilinear, which constructs FillRectilinear. Patch 0011 retains the string-factory coverage, uses the current name and adds three null guards. All existing geometry assertions, tolerances and disabled blocks remain unchanged. The new patch has not yet been compiled or executed; it does not resolve the other suite failures.",
   "crash_followup": "Run 41340831232 compiled but failed CTest; all three crash backtraces were collected. Candidate 0012 migrates generic config access/validation tests to reviewed current schema types, retaining percent/type/invalid-input coverage and all original thresholds except the pinned layer_height default 0.3 -> 0.2. The unchanged-value test explicitly seeds 60.0. Candidate 0013 is a RUNTIME safety patch: reject zero-area items before either NFP placement path and guard all three optional progress callbacks. It adds direct degenerate-contour and empty-callback regression cases; original suite assertions remain. These new patches are source-verified but not yet compiled/runtime-validated. Six-suite acceptance gate remains mandatory; no engine lock or production change.",
+  "latest_followup": "Run 41348912185 compiled with 0011-0013 but six suites still failed; nesting no longer crashed and its new regression cases passed. Remaining crashes occurred in placeholder and skirt tests with unchecked obsolete typed options. Candidate 0014 adds only failing pointer preconditions, without renaming settings or changing expectations. This diagnoses schema incompatibility, not a fix for the remaining test failures. The diagnostic collector now preserves original CTest logs before show-only inventory overwrites them.",
   "sources": [
+    {
+      "path": "tests/libslic3r/test_placeholder_parser.cpp",
+      "sha256": "cac6dd1aa41bdeeff0b017c46005e9ae3af7df0a8a39928e4d1322b46951a56d"
+    },
     {
       "path": "tests/libslic3r/test_config.cpp",
       "sha256": "6538c4a300dd4a5e6ad6e699982f46961c4b530802aa62ab2decea2235a6a9a3"
@@ -258,6 +263,10 @@
     {
       "path": "slicer/engine/patches/0013-nfp-degenerate-and-optional-progress.patch",
       "sha256": "251e4985a8f708b86a6a1b66988d8f088e049134d280333fd0a27f13b65eaf0f"
+    },
+    {
+      "path": "slicer/engine/patches/0014-test-option-preconditions.patch",
+      "sha256": "30a815efc421a7d6e7b1a451da43155fd6af80ae0fecc1a3c185ae24988a9cbc"
     }
   ],
   "compiled": false,

@@ -1,0 +1,25 @@
+diff --git a/tests/libslic3r/test_placeholder_parser.cpp b/tests/libslic3r/test_placeholder_parser.cpp
+--- a/tests/libslic3r/test_placeholder_parser.cpp
++++ b/tests/libslic3r/test_placeholder_parser.cpp
+@@ -18,5 +18,8 @@ SCENARIO("Placeholder parser scripting", "[PlaceholderParser]") {
+ //  config.option<ConfigOptionFloatOrPercent>("first_layer_height")->value = 150.;
+ //  config.option<ConfigOptionFloatOrPercent>("first_layer_height")->percent = true;
++    REQUIRE(config.option<ConfigOptionFloatOrPercent>("first_layer_height") != nullptr);
++    REQUIRE(config.option<ConfigOptionFloat>("layer_height") != nullptr);
++    REQUIRE(config.option<ConfigOptionFloatOrPercent>("first_layer_speed") != nullptr);
+     config.option<ConfigOptionFloatOrPercent>("first_layer_height")->value = 1.5 * config.opt_float("layer_height");
+     config.option<ConfigOptionFloatOrPercent>("first_layer_height")->percent = false;
+     // To let the PlaceholderParser throw when referencing first_layer_speed if it is set to percent, as the PlaceholderParser does not know
+diff --git a/tests/fff_print/test_skirt_brim.cpp b/tests/fff_print/test_skirt_brim.cpp
+--- a/tests/fff_print/test_skirt_brim.cpp
++++ b/tests/fff_print/test_skirt_brim.cpp
+@@ -49,3 +49,4 @@ TEST_CASE("Skirt height is honored", "[Skirt]") {
+     std::map<double, bool> layers_with_skirt;
++    REQUIRE(config.opt<Slic3r::ConfigOptionFloat>("support_material_speed") != nullptr);
+     double support_speed = config.opt<Slic3r::ConfigOptionFloat>("support_material_speed")->value * MM_PER_MIN;
+ 	GCodeReader parser;
+@@ -88,3 +89,4 @@ SCENARIO("Original Slic3r Skirt/Brim tests", "[SkirtBrim]") {
+                 bool brim_generated = false;
++                REQUIRE(config.opt<Slic3r::ConfigOptionFloat>("support_material_speed") != nullptr);
+                 double support_speed = config.opt<Slic3r::ConfigOptionFloat>("support_material_speed")->value * MM_PER_MIN;
+ 			    Slic3r::GCodeReader parser;

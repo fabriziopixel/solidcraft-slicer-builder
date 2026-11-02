@@ -56,7 +56,14 @@ def diagnose(output, confirmed=False, timeout=120):
            if key in {"PATH", "HOME", "LANG", "LC_ALL", "TMPDIR"}}
     env.update({"DEBUGINFOD_URLS": "", "GIT_CONFIG_GLOBAL": "/dev/null"})
     try:
-        names = crash_tests((build / "Testing/Temporary/LastTest.log").read_text())
+        # Even `ctest --show-only=json-v1` rewrites LastTest.log. Preserve
+        # acceptance evidence before invoking CTest again, including failed IDs.
+        original_logs = build / "Testing/Temporary"
+        for filename in ("LastTest.log", "LastTestsFailed.log"):
+            source = original_logs / filename
+            if source.is_file():
+                shutil.copyfile(source, destination / filename)
+        names = crash_tests((destination / "LastTest.log").read_text())
         gdb = shutil.which("gdb")
         if not gdb:
             summary["unavailable"] = "gdb not installed; no crash rerun"

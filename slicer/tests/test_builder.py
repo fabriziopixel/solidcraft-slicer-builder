@@ -237,6 +237,21 @@ class KitTests(unittest.TestCase):
         self.assertIn('CCACHE_MAXSIZE=2G', workflow)
         self.assertIn('restore-keys:', workflow)
 
+    def test_option_preconditions_do_not_remove_or_rename_test_logic(self):
+        path = 'slicer/engine/patches/0014-test-option-preconditions.patch'
+        text = (driver.ROOT / path).read_text()
+        removed = [line for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]
+        added = [line[1:].strip() for line in text.splitlines() if line.startswith('+') and not line.startswith('+++')]
+        self.assertEqual(removed, [])
+        self.assertEqual(len(added), 5)
+        self.assertTrue(all(line.startswith('REQUIRE(config.') and line.endswith(' != nullptr);') for line in added))
+        self.assertNotIn('diff --git a/src/', text)
+        manifest = json.loads((driver.ROOT / 'docs/slicer/b2-build-fixes.json').read_text())
+        self.assertIn('tests/libslic3r/test_placeholder_parser.cpp', {entry['path'] for entry in manifest['sources']})
+        self.assertIn(path, package.FILES)
+        self.assertEqual(next(entry['sha256'] for entry in manifest['patches'] if entry['path'] == path),
+                         hashlib.sha256((driver.ROOT / path).read_bytes()).hexdigest())
+
     def test_config_schema_patch_preserves_existing_assertion_intent(self):
         text = (driver.ROOT / 'slicer/engine/patches/0012-config-test-current-schema.patch').read_text()
         removed = [line[1:] for line in text.splitlines() if line.startswith('-') and not line.startswith('---')]

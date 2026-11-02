@@ -86,6 +86,28 @@ class DiagnosticTests(unittest.TestCase):
     def test_rerun_preserves_selection_credentials_and_failed_gate(self):
         self.exercise()
 
+    def test_ctest_inventory_cannot_destroy_original_evidence(self):
+        logs = self.build / 'Testing/Temporary'
+        original = (logs / 'LastTest.log').read_bytes()
+        (logs / 'LastTestsFailed.log').write_text('1:crashed\n')
+
+        def inventory(*args, **kwargs):
+            (logs / 'LastTest.log').write_text('Start testing\nEnd testing\n')
+            (logs / 'LastTestsFailed.log').unlink()
+            return subprocess.CompletedProcess([], 0, stdout=json.dumps({'tests': [self.test]}))
+
+        process = MagicMock(pid=12345, returncode=0)
+        with patch.object(diagnose.shutil, 'which', return_value='/usr/bin/gdb'), \
+                patch.object(diagnose.subprocess, 'run', side_effect=inventory), \
+                patch.object(diagnose.subprocess, 'Popen', return_value=process), \
+                patch.object(diagnose.os, 'killpg'):
+            summary = diagnose.diagnose(self.output, True)
+        saved = self.output / 'crash-diagnostics'
+        self.assertEqual((saved / 'LastTest.log').read_bytes(), original)
+        self.assertEqual((saved / 'LastTestsFailed.log').read_text(), '1:crashed\n')
+        self.assertEqual(summary['runs'][0]['suite'], 'crashed')
+        self.assertFalse(summary['printer_ready'])
+
     def test_timeout_kills_debugger_and_descendants(self):
         self.exercise(timeout=True)
 

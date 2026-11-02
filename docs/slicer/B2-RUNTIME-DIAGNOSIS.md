@@ -1,5 +1,19 @@
 # B2 runtime diagnosis and candidate corrections
 
+## Latest verified run: 41348912185
+
+Run [41348912185](https://github.com/fabriziopixel/solidcraft-slicer-builder/actions/runs/41348912185) completed **failure**, with `compiled=true`, `tests_passed=false`: six of eight suites still failed. Its original CTest output survives in `candidate/build.log`; the diagnostic CTest inventory overwrote `Testing/Temporary/LastTest.log` with an empty session. The collector now snapshots both original `LastTest.log` and `LastTestsFailed.log` into `crash-diagnostics/` before any further CTest invocation. A synthetic regression explicitly reproduces inventory truncation and verifies byte-for-byte preservation and unchanged failed gate.
+
+Observed progress, not a passed gate:
+
+- Both new NFP regression cases passed (zero-area rejection and omitted/supplied callback). Nesting completed without SIGSEGV or `bad_function_call`, but eight original cases still failed, including bin-count and placement properties.
+- Config accessor and fill factory no longer crashed. Further configuration/validation and fill geometry failures remain.
+- Two crashes remain: placeholder scripting and skirt height. Release GDB traces identify test functions, not precise source lines. Pinned source review additionally establishes unchecked null typed options: placeholder setup requests `first_layer_height`/`first_layer_speed`; skirt reads `support_material_speed` after slicing.
+- Candidate **0014 is diagnostic/test-only**: five explicit `REQUIRE(... != nullptr)` preconditions. It deliberately keeps the obsolete names and every original calculation/assertion; incompatible schema must fail clearly, not be renamed to a physically different setting. It is not a migration or a fix for these failing scenarios. No runtime code changes in this follow-up.
+- Shared FFF fixtures still report that objects do not fit the bed. Hull/geometry, SLA intersections and filament capacity/score failures remain unresolved. No test or tolerance is removed or softened.
+
+Evidence downloaded to `/root/solidcraft-review/ci-41348912185/`. Source for the additional placeholder test was independently fetched from the pinned public revision and its SHA256 matched the manifest. Patch applicability was verified against the previously reviewed patched source copy. Local checks: **30 kit tests and 8 synthetic diagnostic tests passed**. The three CMake fixture tests were **skipped locally** because fixture tools were unavailable; they remain required on the hosted runner. These are not engine compilation/runtime validation. Production and engine B3/lock remain unchanged; B2 is open.
+
 ## Latest completed diagnostic evidence: 41340831232
 
 Run [41340831232](https://github.com/fabriziopixel/solidcraft-slicer-builder/actions/runs/41340831232) completed with failure after about 81 minutes. Application/tests compiled, dependency cache was reused, and the same six CTest suites failed. All three bounded GDB reruns completed without timeout. `debugger_exit_code=0` means GDB finished, **not** that its inferior passed: each backtrace records SIGSEGV.
